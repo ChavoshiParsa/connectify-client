@@ -1,0 +1,63 @@
+{
+  "Metadata": {
+    "title": "Connectify",
+    "description": "Connect to your friends with Connectify"
+  },
+  "LandingPage": {
+    "welcome": "Welcome to Connectify!",
+    "sign_in": "Sign In",
+    "sign_up": "Sign Up"
+  },
+  "LoginPage": {
+    "email": "Email",
+    "password": "Password",
+    "sign_in": "Sign In",
+    "sign_up": "Sign Up",
+    "no_account": "Don't have an account?",
+    "already_account": "Already have an account?",
+    "success_sign_in": "Login successful!",
+    "success_sign_up": "Registration successful!",
+    "CredentialsSignin": "Invalid email or password.",
+    "invalid_email": "Invalid email format",
+    "email_required": "Email is required",
+    "password_required": "Password is required",
+    "password_min_length": "Password must be at least 8 characters long",
+    "enter_email": "Please enter your email address",
+    "enter_password": "Please enter your password",
+    "failed_fetch": "Failed to fetch user",
+    "user_exist": "User with this email already exists",
+    "welcome_back": "Welcome Back!",
+    "create_account": "Create Your Account",
+    "welcome_back_text": "Welcome back, please enter your credentials.",
+    "create_account_text": "Choose a email and set a password."
+  },
+  "Sidebar": {
+    "home": "Home",
+    "profile": "Profile",
+    "preferences": "Preferences",
+    "saved_messages": "Saved Messages",
+    "contacts": "Contacts",
+    "logout": "Log out"
+  },
+  "App": {
+    "app_name": "Connectify"
+  },
+  "ChatList": {
+    "search": "Search"
+  },
+  "Date": {
+    "Saturday": "Saturday",
+    "Sunday": "Sunday",
+    "Monday": "Monday",
+    "Tuesday": "Tuesday",
+    "Wednesday": "Wednesday",
+    "Thursday": "Thursday",
+    "Friday": "Friday",
+    "Yesterday": "Yesterday"
+  },
+  "ChatScreen": {
+    "last_seen": "Last seen",
+    "write_message": "Write a message...",
+    "online": "online"
+  }
+}

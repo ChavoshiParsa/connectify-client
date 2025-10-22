@@ -1,0 +1,63 @@
+{
+  "Metadata": {
+    "title": "کانکتیفای",
+    "description": "با کانکتیفای به دوستان خود متصل شوید"
+  },
+  "LandingPage": {
+    "welcome": "به کانکتیفای خوش آمدید!",
+    "sign_in": "ورود",
+    "sign_up": "ثبت نام"
+  },
+  "LoginPage": {
+    "email": "ایمیل",
+    "password": "رمز عبور",
+    "sign_in": "ورود",
+    "sign_up": "ثبت نام",
+    "no_account": "حساب کاربری ندارید؟",
+    "already_account": "از قبل حساب کاربری دارید؟",
+    "success_sign_in": "ورود با موفقیت انجام شد!",
+    "success_sign_up": "ثبت نام با موفقیت انجام شد!",
+    "CredentialsSignin": "ایمیل یا رمز عبور اشتباه است.",
+    "invalid_email": "فرمت ایمیل نامعتبر است",
+    "email_required": "وارد کردن ایمیل ضروری است",
+    "password_required": "وارد کردن رمز عبور ضروری است",
+    "password_min_length": "رمز عبور باید حداقل ۸ کاراکتر باشد",
+    "enter_email": "لطفاً ایمیل خود را وارد کنید",
+    "enter_password": "لطفاً گذرواژه خود را وارد کنید",
+    "failed_fetch": "کاربر واکشی نشد",
+    "user_exist": "کاربر با این ایمیل از قبل وجود دارد",
+    "welcome_back": "خوش آمدید!",
+    "create_account": "حساب کاربری ایجاد کنید",
+    "welcome_back_text": "خوش آمدید، لطفاً اطلاعات کاربری خود را وارد کنید.",
+    "create_account_text": "یک ایمیل انتخاب کنید و یک رمز عبور تنظیم کنید."
+  },
+  "Sidebar": {
+    "home": "خانه",
+    "profile": "پروفایل",
+    "preferences": "تنظیمات",
+    "saved_messages": "پیام های ذخیره شده",
+    "contacts": "مخاطبان",
+    "logout": "خروج"
+  },
+  "App": {
+    "app_name": "کانکتیفای"
+  },
+  "ChatList": {
+    "search": "جستجو"
+  },
+  "Date": {
+    "Saturday": "شنبه",
+    "Sunday": "یکشنبه",
+    "Monday": "دوشنبه",
+    "Tuesday": "سه‌شنبه",
+    "Wednesday": "چهارشنبه",
+    "Thursday": "پنج‌شنبه",
+    "Friday": "جمعه",
+    "Yesterday": "دیروز"
+  },
+  "ChatScreen": {
+    "last_seen": "آخرین بازدید",
+    "write_message": "پیامی بنویسید...",
+    "online": "آنلاین"
+  }
+}
