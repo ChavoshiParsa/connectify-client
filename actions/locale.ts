@@ -1,6 +1,6 @@
 'use server';
 
-import { defaultLocale } from '@/i18n/config';
+import { defaultLocale } from '@/constants/locales';
 import { LocaleType } from '@/types/i18n';
 import { cookies } from 'next/headers';
 

@@ -1,13 +1,35 @@
-import LocaleSelector from '@/components/action-buttons/LocaleSelector';
-import ModeToggle from '@/components/action-buttons/ModeToggle';
+import SettingActionButtons from '@/components/common/SettingActionButtons';
+import { useApp } from '@/hooks/use-app';
+import { useTranslations } from 'next-intl';
+import Link from 'next/link';
 
 export default function Home() {
+  const { appName } = useApp();
+  const t = useTranslations('LandingPage');
+
   return (
-    <div className="flex min-h-screen items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex min-h-screen w-full max-w-3xl flex-col items-center justify-between bg-white px-16 py-32 sm:items-start dark:bg-black">
-        <LocaleSelector />
-        <ModeToggle />
-      </main>
+    <div className="flex size-full flex-col items-center justify-between p-4">
+      <nav className="flex w-full items-center justify-between">
+        <div className="flex items-center justify-center gap-2">
+          <Link
+            className="rounded bg-indigo-600 px-4 py-2 text-center text-nowrap text-white hover:bg-indigo-700"
+            href="auth?page=sign-in"
+          >
+            {t('sign_in')}
+          </Link>
+          <Link
+            className="rounded bg-sky-600 px-4 py-2 text-center text-nowrap text-white hover:bg-sky-700"
+            href="auth?page=sign-up"
+          >
+            {t('sign_up')}
+          </Link>
+        </div>
+        <SettingActionButtons />
+      </nav>
+      <div className="flex size-full flex-col items-center justify-center space-y-8">
+        <h1 className="text-5xl font-bold">{appName}</h1>
+        <h2 className="text-3xl font-medium">{t('welcome')}</h2>
+      </div>
     </div>
   );
 }
