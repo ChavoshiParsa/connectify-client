@@ -3,7 +3,7 @@
 import { ResizableHandle, ResizablePanel, ResizablePanelGroup } from '@/components/ui/resizable';
 import { MD } from '@/constants/screen-breakpoints';
 import { useElementWidth } from '@/hooks/use-element-width';
-import { useSidebarStore } from '@/lib/store';
+import { useSidebarStore } from '@/stores/ui-store';
 import { cn } from '@/lib/utils';
 import ChatList from './chat-list/ChatList';
 import ChatScreen from './chat-screen/ChatScreen';

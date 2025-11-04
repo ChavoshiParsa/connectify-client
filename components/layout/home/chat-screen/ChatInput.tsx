@@ -1,6 +1,8 @@
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
+import { fonts } from '@/constants/fonts';
 import { useApp } from '@/hooks/use-app';
+import { useLocaleUtils } from '@/hooks/use-locale-utils';
 import { cn } from '@/lib/utils';
 import { SendHorizontal } from 'lucide-react';
 import { useTranslations } from 'next-intl';
@@ -8,7 +10,7 @@ import { useRef, useState } from 'react';
 
 export default function ChatInput() {
   const t = useTranslations('ChatScreen');
-  const { isRtl } = useApp();
+  const { locale, isRtl } = useApp();
 
   const submitFormRef = useRef<HTMLButtonElement>(null);
   const textAreaRef = useRef<HTMLTextAreaElement>(null);
@@ -30,13 +32,19 @@ export default function ChatInput() {
     }
   }
 
+  const { detectLocale } = useLocaleUtils();
+  const messageLocal = detectLocale(message);
+
   return (
     <form
       className="z-20 flex w-full gap-2 border-t border-zinc-200 bg-zinc-100 p-2 dark:border-zinc-800 dark:bg-zinc-950"
       onSubmit={sendMessageHandler}
     >
       <Textarea
-        className="max-h-12 min-h-12 resize-none py-3 text-sm wrap-break-word"
+        className={cn(
+          'max-h-12 min-h-12 resize-none py-3 text-sm wrap-break-word',
+          fonts[message !== '' ? messageLocal : locale],
+        )}
         ref={textAreaRef}
         placeholder={t('write_message')}
         name="message-field"

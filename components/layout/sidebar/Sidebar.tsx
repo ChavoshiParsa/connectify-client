@@ -2,7 +2,7 @@
 
 import { useClickOutside } from '@/hooks/use-click-outside';
 import { useWindowWidth } from '@/hooks/use-window-width';
-import { useSidebarStore } from '@/lib/store';
+import { useSidebarStore } from '@/stores/ui-store';
 import { motion, Variants } from 'motion/react';
 import { useEffect, useRef } from 'react';
 import SidebarFooter from './SidebarFooter';

@@ -41,12 +41,12 @@ export default function ChatItem({
   return (
     <Link
       className={cn(
-        'flex w-full cursor-pointer items-center justify-center gap-2 rounded-lg p-2 transition hover:bg-zinc-200 dark:hover:bg-zinc-900',
+        'flex w-full cursor-pointer items-center justify-center gap-3 p-3 transition hover:bg-zinc-200 dark:hover:bg-zinc-900',
         isActive && 'bg-zinc-200 dark:bg-zinc-900',
       )}
       href={'/home/' + connectId}
     >
-      <Avatar className="relative size-12 overflow-visible rounded-lg">
+      <Avatar className="relative size-11 overflow-visible rounded-lg">
         <AvatarImage className="rounded-lg" src={avatarImageSrc} alt={`${firstName} ${lastName}'s avatar`} />
         <AvatarFallback
           className={cn(
@@ -61,7 +61,7 @@ export default function ChatItem({
       </Avatar>
       <div className="flex h-full w-full flex-col items-start justify-between">
         <div className="flex w-full items-center justify-between">
-          <span className={(cn('font-medium'), fonts[nameLocal])}>
+          <span className={cn('text-sm font-medium', fonts[nameLocal])}>
             {firstName} {lastName}
           </span>
           <div className="flex items-center justify-center gap-1">
@@ -72,7 +72,7 @@ export default function ChatItem({
         <div className="flex w-full items-center justify-center gap-2">
           <p
             className={cn(
-              'line-clamp-1 w-full overflow-hidden text-start text-sm wrap-break-word text-zinc-500',
+              'line-clamp-1 w-full overflow-hidden text-start text-xs wrap-break-word text-zinc-500',
               fonts[messageLocal],
             )}
             dir={rtlLocales.has(messageLocal) ? 'rtl' : 'ltr'}

@@ -1,5 +1,5 @@
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
-import { useSidebarStore } from '@/lib/store';
+import { useSidebarStore } from '@/stores/ui-store';
 import { cn } from '@/lib/utils';
 import { LucideProps } from 'lucide-react';
 import { useTranslations } from 'next-intl';

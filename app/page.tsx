@@ -1,4 +1,5 @@
-import SettingActionButtons from '@/components/common/SettingActionButtons';
+import LocaleSelector from '@/components/common/LocaleSelector';
+import ModeToggle from '@/components/common/ModeToggle';
 import { useApp } from '@/hooks/use-app';
 import { useTranslations } from 'next-intl';
 import Link from 'next/link';
@@ -24,7 +25,10 @@ export default function Home() {
             {t('sign_up')}
           </Link>
         </div>
-        <SettingActionButtons />
+        <div className="flex items-center justify-center gap-1">
+          <LocaleSelector />
+          <ModeToggle />
+        </div>
       </nav>
       <div className="flex size-full flex-col items-center justify-center space-y-8">
         <h1 className="text-5xl font-bold">{appName}</h1>

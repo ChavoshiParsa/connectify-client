@@ -7,23 +7,48 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { user } from '@/constants/dummy-data';
 import { useLocaleUtils } from '@/hooks/use-locale-utils';
-import { useSidebarStore } from '@/lib/store';
+import { useSidebarStore } from '@/stores/ui-store';
 import { cn } from '@/lib/utils';
 
 import { gradientAvatarClasses } from '@/constants/avatar-colors';
 import { fonts } from '@/constants/fonts';
 import { ChevronsUpDown, LogOut } from 'lucide-react';
 import { useTranslations } from 'next-intl';
+import { useMutation } from '@tanstack/react-query';
+import { logout } from '@/api/auth';
+import { toast } from 'sonner';
+import { useRouter } from 'next/navigation';
+import axios from 'axios';
 
 export default function SidebarFooter() {
   const { detectLocale } = useLocaleUtils();
-
+  const router = useRouter();
   const { isSidebarOpen } = useSidebarStore();
   const t = useTranslations('Sidebar');
 
   const avatarFallback = `${user.firstName.charAt(0)}‌${user.lastName.charAt(0)}`.toUpperCase(); // there is shift + space at the between.
-
   const nameLocal = detectLocale(avatarFallback);
+
+  const { mutate, isPending } = useMutation({
+    mutationKey: ['auth', 'logout'],
+    mutationFn: async () => {
+      return await logout();
+    },
+    onSuccess: () => {
+      toast.success(t('success_logout'));
+      router.push('/');
+    },
+    onError: (err: unknown) => {
+      if (axios.isAxiosError(err)) {
+        const msg = err.response?.data?.message;
+        toast.error(typeof msg === 'string' ? t(msg) : t('error_generic'));
+      } else if (err instanceof Error) {
+        toast.error(err.message);
+      } else {
+        toast.error(t('error_generic'));
+      }
+    },
+  });
 
   return (
     <DropdownMenu>
@@ -62,10 +87,7 @@ export default function SidebarFooter() {
         </button>
       </DropdownMenuTrigger>
       <DropdownMenuContent side="top" align="end">
-        <DropdownMenuItem
-          className="cursor-pointer text-red-500"
-          //  onSelect={handleLogout}
-        >
+        <DropdownMenuItem className="cursor-pointer text-red-500" onSelect={() => mutate()} disabled={isPending}>
           <LogOut className="max-h-6 min-h-6 max-w-6 min-w-6" />
           <span>{t('logout')}</span>
         </DropdownMenuItem>

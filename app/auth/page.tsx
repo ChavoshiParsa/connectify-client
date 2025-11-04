@@ -10,10 +10,5 @@ export default async function AuthPage({ searchParams }: { searchParams: Promise
     redirect('/auth?page=sign-in');
   }
 
-  // const session = await getServerSession(authOptions);
-  // if (session?.user) {
-  //   redirect('/home');
-  // }
-
   return <AuthLayout initialPage={page as AuthPageMode} />;
 }

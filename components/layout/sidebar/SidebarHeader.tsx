@@ -1,5 +1,5 @@
 import { useApp } from '@/hooks/use-app';
-import { useSidebarStore } from '@/lib/store';
+import { useSidebarStore } from '@/stores/ui-store';
 import { PanelRight } from 'lucide-react';
 import Image from 'next/image';
 

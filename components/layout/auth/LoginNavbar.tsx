@@ -1,4 +1,5 @@
-import SettingActionButtons from '@/components/common/SettingActionButtons';
+import LocaleSelector from '@/components/common/LocaleSelector';
+import ModeToggle from '@/components/common/ModeToggle';
 import { useApp } from '@/hooks/use-app';
 import { useTranslations } from 'next-intl';
 
@@ -14,7 +15,10 @@ export default function LoginNavbar({ page }: Props) {
     <header className="flex w-full flex-col items-center justify-center space-y-14">
       <nav className="flex w-full items-center justify-between">
         <h1 className="animate-pulse text-2xl text-sky-400 md:text-3xl dark:text-sky-600">{appName}</h1>
-        <SettingActionButtons />
+        <div className="flex items-center justify-center gap-1">
+          <LocaleSelector />
+          <ModeToggle />
+        </div>
       </nav>
       <div className="flex w-full flex-col items-center justify-center space-y-3 md:items-start">
         <h2 className="text-3xl font-medium md:text-4xl">

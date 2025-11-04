@@ -37,7 +37,8 @@
     "preferences": "تنظیمات",
     "saved_messages": "پیام های ذخیره شده",
     "contacts": "مخاطبان",
-    "logout": "خروج"
+    "logout": "خروج",
+    "success_logout": "خروج با موفقیت انجام شد!"
   },
   "App": {
     "app_name": "کانکتیفای"
@@ -58,6 +59,7 @@
   "ChatScreen": {
     "last_seen": "آخرین بازدید",
     "write_message": "پیامی بنویسید...",
-    "online": "آنلاین"
+    "online": "آنلاین",
+    "select_chat": "یک چت را انتخاب کنید."
   }
 }

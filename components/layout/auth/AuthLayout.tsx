@@ -12,7 +12,6 @@ export default function AuthLayout({ initialPage }: { initialPage: AuthPageMode 
   const isSignInPage = initialPage === 'sign-in';
   const pageKey = isSignInPage ? 'sign_in' : 'sign_up';
   const { isRtl } = useApp();
-
   const f = isRtl ? 1 : -1;
 
   return (

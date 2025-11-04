@@ -1,13 +1,20 @@
 import { create } from 'zustand';
 
-type SidebarState = {
+type State = {
   isSidebarOpen: boolean;
+};
+
+type Actions = {
   setSidebarOpen: (open: boolean) => void;
   toggleSidebar: () => void;
 };
 
-export const useSidebarStore = create<SidebarState>((set) => ({
-  isSidebarOpen: true,
+const initialState: State = {
+  isSidebarOpen: false,
+};
+
+export const useSidebarStore = create<State & Actions>((set) => ({
+  ...initialState,
   setSidebarOpen: (open) => set({ isSidebarOpen: open }),
   toggleSidebar: () => set((state) => ({ isSidebarOpen: !state.isSidebarOpen })),
 }));

@@ -37,7 +37,8 @@
     "preferences": "Preferences",
     "saved_messages": "Saved Messages",
     "contacts": "Contacts",
-    "logout": "Log out"
+    "logout": "Log out",
+    "success_logout": "Log out successful!"
   },
   "App": {
     "app_name": "Connectify"
@@ -58,6 +59,7 @@
   "ChatScreen": {
     "last_seen": "Last seen",
     "write_message": "Write a message...",
-    "online": "online"
+    "online": "online",
+    "select_chat": "Select a Chat."
   }
 }
