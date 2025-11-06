@@ -11,7 +11,6 @@ import axios from 'axios';
 import { LoaderCircle, Lock, Mail } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { toast } from 'sonner';
@@ -23,7 +22,6 @@ export default function LoginForm({ pageMode }: { pageMode: AuthPageMode }) {
   const isSignInForm = pageMode === 'sign-in';
 
   const t = useTranslations('LoginPage');
-  const router = useRouter();
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [tempEmail, setTempEmail] = useState('');
@@ -45,7 +43,6 @@ export default function LoginForm({ pageMode }: { pageMode: AuthPageMode }) {
     },
     onSuccess: () => {
       toast.success(t('success_sign_in'));
-      router.push('/home');
     },
     onError: (err: unknown) => {
       if (axios.isAxiosError(err)) {

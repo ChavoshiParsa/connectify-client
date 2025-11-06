@@ -5,7 +5,8 @@ import Image from 'next/image';
 
 export default function SidebarHeader() {
   const { appName } = useApp();
-  const { isSidebarOpen, toggleSidebar } = useSidebarStore();
+  const isSidebarOpen = useSidebarStore((state) => state.isSidebarOpen);
+  const toggleSidebar = useSidebarStore((state) => state.toggleSidebar);
 
   return (
     <button

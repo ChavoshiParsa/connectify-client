@@ -1,6 +1,6 @@
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
-import { useSidebarStore } from '@/stores/ui-store';
 import { cn } from '@/lib/utils';
+import { useSidebarStore } from '@/stores/ui-store';
 import { LucideProps } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import Link from 'next/link';
@@ -13,7 +13,7 @@ type SidebarMenuItemProps = {
 };
 
 export default function SidebarMenuItem({ title, href, icon: Icon }: SidebarMenuItemProps) {
-  const { isSidebarOpen } = useSidebarStore();
+  const isSidebarOpen = useSidebarStore((state) => state.isSidebarOpen);
 
   const t = useTranslations('Sidebar');
   const pathname = usePathname();

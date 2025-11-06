@@ -1,3 +1,4 @@
+import { logout } from '@/api/auth';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import {
   DropdownMenu,
@@ -5,28 +6,25 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { user } from '@/constants/dummy-data';
-import { useLocaleUtils } from '@/hooks/use-locale-utils';
-import { useSidebarStore } from '@/stores/ui-store';
-import { cn } from '@/lib/utils';
-
 import { gradientAvatarClasses } from '@/constants/avatar-colors';
 import { fonts } from '@/constants/fonts';
+import { useLocaleUtils } from '@/hooks/use-locale-utils';
+import { cn } from '@/lib/utils';
+import { useAuthStore } from '@/stores/auth-store';
+import { useSidebarStore } from '@/stores/ui-store';
+import { useMutation } from '@tanstack/react-query';
+import axios from 'axios';
 import { ChevronsUpDown, LogOut } from 'lucide-react';
 import { useTranslations } from 'next-intl';
-import { useMutation } from '@tanstack/react-query';
-import { logout } from '@/api/auth';
 import { toast } from 'sonner';
-import { useRouter } from 'next/navigation';
-import axios from 'axios';
 
 export default function SidebarFooter() {
   const { detectLocale } = useLocaleUtils();
-  const router = useRouter();
-  const { isSidebarOpen } = useSidebarStore();
+  const isSidebarOpen = useSidebarStore((state) => state.isSidebarOpen);
   const t = useTranslations('Sidebar');
+  const user = useAuthStore((state) => state.user);
 
-  const avatarFallback = `${user.firstName.charAt(0)}‌${user.lastName.charAt(0)}`.toUpperCase(); // there is shift + space at the between.
+  const avatarFallback = `${user?.firstName?.charAt(0) ?? ''}‌${user?.lastName?.charAt(0) ?? ''}`.toUpperCase(); // there is shift + space at the between.
   const nameLocal = detectLocale(avatarFallback);
 
   const { mutate, isPending } = useMutation({
@@ -36,7 +34,6 @@ export default function SidebarFooter() {
     },
     onSuccess: () => {
       toast.success(t('success_logout'));
-      router.push('/');
     },
     onError: (err: unknown) => {
       if (axios.isAxiosError(err)) {
@@ -62,13 +59,13 @@ export default function SidebarFooter() {
           <Avatar className="flex size-10 items-center justify-center rounded-lg">
             <AvatarImage
               className="rounded-lg"
-              src={user.avatarImage}
-              alt={`${user.firstName} ${user.lastName}'s avatar`}
+              src={user?.avatarUrl || ''}
+              alt={`${user?.firstName ?? ''} ${user?.lastName ?? ''}'s avatar`}
             />
             <AvatarFallback
               className={cn(
                 'rounded-lg bg-linear-to-br text-zinc-50',
-                gradientAvatarClasses[user.avatarColor],
+                gradientAvatarClasses[user?.avatarColor || 'RED'],
                 fonts[nameLocal],
               )}
             >
@@ -77,9 +74,9 @@ export default function SidebarFooter() {
           </Avatar>
           {isSidebarOpen && (
             <>
-              <div className="flex w-full flex-col items-start">
-                <span className="text-sm leading-4 font-semibold text-nowrap">{`${user.firstName} ${user.lastName}`}</span>
-                <span className="text-muted-foreground text-xs font-light text-nowrap">{user.email}</span>
+              <div className="flex h-full w-full flex-col items-start justify-evenly">
+                <span className="text-sm leading-4 font-semibold text-nowrap">{`${user?.firstName ?? ''} ${user?.lastName ?? ''}`}</span>
+                <span className="text-muted-foreground text-xs font-light text-nowrap">{user?.email ?? ''}</span>
               </div>
               <ChevronsUpDown className="max-h-6 min-h-6 max-w-6 min-w-6 text-zinc-800 dark:text-zinc-200" />
             </>

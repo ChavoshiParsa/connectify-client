@@ -23,7 +23,9 @@ const variants: Variants = {
 };
 
 export default function Sidebar() {
-  const { isSidebarOpen, setSidebarOpen } = useSidebarStore();
+  const isSidebarOpen = useSidebarStore((state) => state.isSidebarOpen);
+  const setSidebarOpen = useSidebarStore((state) => state.setSidebarOpen);
+
   const { isLg, isMd } = useWindowWidth();
 
   const sidebarRef = useRef<HTMLDivElement>(null);

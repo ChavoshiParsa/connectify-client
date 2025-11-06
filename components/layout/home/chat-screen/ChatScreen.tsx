@@ -1,12 +1,11 @@
 import { Button } from '@/components/ui/button';
 import { messageItems } from '@/constants/dummy-data';
 import { ChevronDown } from 'lucide-react';
+import { useTranslations } from 'next-intl';
 import { useEffect, useRef, useState } from 'react';
 import ChatHeader from './ChatHeader';
 import ChatInput from './ChatInput';
 import Message from './Message';
-import { useTranslations } from 'next-intl';
-import { useApp } from '@/hooks/use-app';
 
 type Props = {
   userId?: string;
@@ -16,7 +15,6 @@ export default function ChatScreen({ userId }: Props) {
   const t = useTranslations('ChatScreen');
   const messageEndRef = useRef<HTMLDivElement>(null);
   const [isMessageEndInView, setIsMessageEndInView] = useState(true);
-  const { locale } = useApp();
 
   const scrollToBottom = () => {
     if (messageEndRef.current) {

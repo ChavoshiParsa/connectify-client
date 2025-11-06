@@ -1,6 +1,5 @@
 'use client';
 
-import { refresh } from '@/api/auth';
 import { getMe } from '@/api/users';
 import { useAuthStore } from '@/stores/auth-store';
 import { isAxiosError } from 'axios';
@@ -15,39 +14,39 @@ export default function AuthRedirectProvider({ children }: { children: React.Rea
   const router = useRouter();
   const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
 
-  const isProtected = PROTECTED_ROUTES.some((route) => pathname === route || pathname.startsWith(route + '/'));
+  const isProtectedRoute = PROTECTED_ROUTES.some((route) => pathname === route || pathname.startsWith(route + '/'));
+  const isAuthRoute = pathname === '/auth' || pathname.startsWith('/auth');
+
   useEffect(() => {
     const checkAuth = async () => {
-      if (isAuthenticated) {
-        if (pathname.startsWith('/auth')) {
-          router.replace('/home');
-        }
-      } else {
+      if (!isAuthenticated) {
         try {
-          const response = await refresh();
-          if (response.status === 200) {
-            await getMe();
-            if (pathname.startsWith('/auth')) {
-              router.replace('/home');
-            }
+          const response = await getMe();
+          console.log(response);
+
+          if (response.statusText === 'OK' && isAuthRoute) {
+            router.replace('/home');
           }
         } catch (error) {
-          if (isAxiosError(error) && error.response?.status === 401 && isProtected) {
+          if (isAxiosError(error) && error.response?.status === 401 && isProtectedRoute) {
             router.replace('/auth');
           }
         }
+      } else if (isAuthRoute) {
+        router.replace('/home');
       }
+
       setLoading(false);
     };
 
     checkAuth();
-  }, [pathname, router, isAuthenticated, isProtected]);
+  }, [isAuthenticated, isProtectedRoute, isAuthRoute, router]);
 
   if (loading) return null;
 
-  if (isProtected && !isAuthenticated) {
-    return <p>loading...</p>;
-  }
+  if (!isAuthenticated && isProtectedRoute) return null;
+
+  if (isAuthenticated && isAuthRoute) return null;
 
   return <>{children}</>;
 }

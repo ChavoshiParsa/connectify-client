@@ -7,10 +7,14 @@ type Cfg = InternalAxiosRequestConfig & {
   skipAuthRefresh?: boolean;
 };
 
-export const authApi = axios.create({ baseURL: process.env.NEXT_PUBLIC_API_BASE_URL, withCredentials: true });
+export const authApi = axios.create({
+  baseURL: process.env.NEXT_PUBLIC_API_BASE_URL,
+  withCredentials: true,
+});
 
 export const api = axios.create({
   baseURL: process.env.NEXT_PUBLIC_API_BASE_URL,
+  withCredentials: true,
 });
 
 let isRefreshing = false;

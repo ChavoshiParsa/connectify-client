@@ -3,8 +3,8 @@
 import { ResizableHandle, ResizablePanel, ResizablePanelGroup } from '@/components/ui/resizable';
 import { MD } from '@/constants/screen-breakpoints';
 import { useElementWidth } from '@/hooks/use-element-width';
-import { useSidebarStore } from '@/stores/ui-store';
 import { cn } from '@/lib/utils';
+import { useSidebarStore } from '@/stores/ui-store';
 import ChatList from './chat-list/ChatList';
 import ChatScreen from './chat-screen/ChatScreen';
 
@@ -14,7 +14,7 @@ type Props = {
 
 export default function Home({ userId }: Props) {
   const [mainRef, divWidth] = useElementWidth<HTMLDivElement>();
-  const { isSidebarOpen } = useSidebarStore();
+  const isSidebarOpen = useSidebarStore((state) => state.isSidebarOpen);
 
   const isDivUnderMd = divWidth < MD && isSidebarOpen;
 
