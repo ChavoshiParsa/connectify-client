@@ -27,10 +27,16 @@ export default function Message({ messageText, status, time, type }: MessageType
           : `left bg-zinc-200 dark:bg-zinc-800 ${isRtl ? 'self-end' : 'self-start'}`,
       )}
     >
-      <p className={cn('text-start text-sm', fonts[messageLocal])} dir={rtlLocales.has(messageLocal) ? 'rtl' : 'ltr'}>
+      <p
+        className={cn(
+          'overflow-hidden text-start text-sm wrap-break-word hyphens-auto whitespace-pre-line',
+          fonts[messageLocal],
+        )}
+        dir={rtlLocales.has(messageLocal) ? 'rtl' : 'ltr'}
+      >
         {messageText}
       </p>
-      <span className="flex items-center justify-center gap-1 self-end overflow-hidden text-xs font-light wrap-break-word hyphens-auto whitespace-pre-line text-zinc-700 dark:text-zinc-300">
+      <span className="flex items-center justify-center gap-1 self-end text-xs font-light text-zinc-700 dark:text-zinc-300">
         {convertToPrDigitsIfPr(formatTime(time))}
         {icon}
       </span>

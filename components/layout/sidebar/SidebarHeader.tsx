@@ -16,8 +16,8 @@ export default function SidebarHeader() {
       {isSidebarOpen && (
         <>
           <Image className="" src={'/images/app-logo.png'} alt={'App Logo'} width={24} height={24} priority />
-          <div className="flex w-full items-center justify-between">
-            <h1 className="font-bold text-nowrap">{appName}</h1>
+          <div className="flex w-full items-center justify-between overflow-auto">
+            <h1 className="line-clamp-1 w-full text-start font-bold wrap-break-word">{appName}</h1>
           </div>
         </>
       )}

@@ -62,7 +62,11 @@ api.interceptors.response.use(
     isRefreshing = true;
 
     try {
-      await refresh();
+      const response = await refresh();
+      const { accessToken } = response.data;
+      if (accessToken) {
+        originalRequest.headers['Authorization'] = `Bearer ${accessToken}`;
+      }
       processQueue();
       return api(originalRequest);
     } catch (refreshError) {

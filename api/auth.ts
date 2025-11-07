@@ -6,9 +6,22 @@ export const validateEmailPass = async (email: string, password: string) => {
   return response;
 };
 
-export const register = async (email: string, password: string, firstName: string, lastName?: string) => {
+export const register = async (
+  email: string,
+  password: string,
+  firstName: string,
+  lastName?: string,
+  avatarBase64?: string,
+) => {
   const { deviceId, setDeviceIdOnce, setAuth } = useAuthStore.getState();
-  const response = await authApi.post('/auth/register', { firstName, lastName, email, password, deviceId });
+  const response = await authApi.post('/auth/register', {
+    firstName,
+    lastName,
+    email,
+    password,
+    deviceId,
+    avatarBase64,
+  });
   const { accessToken, user, deviceId: newDeviceId } = response.data;
   setDeviceIdOnce(newDeviceId);
   setAuth({ accessToken, user });

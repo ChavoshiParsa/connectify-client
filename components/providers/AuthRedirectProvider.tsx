@@ -5,6 +5,7 @@ import { useAuthStore } from '@/stores/auth-store';
 import { isAxiosError } from 'axios';
 import { usePathname, useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
+import { Spinner } from '../ui/spinner';
 
 const PROTECTED_ROUTES = ['/home', '/profile', '/preferences', '/saved-messages', '/contacts'];
 
@@ -16,6 +17,7 @@ export default function AuthRedirectProvider({ children }: { children: React.Rea
 
   const isProtectedRoute = PROTECTED_ROUTES.some((route) => pathname === route || pathname.startsWith(route + '/'));
   const isAuthRoute = pathname === '/auth' || pathname.startsWith('/auth');
+  const isLandingRoute = pathname === '/';
 
   useEffect(() => {
     const checkAuth = async () => {
@@ -24,7 +26,7 @@ export default function AuthRedirectProvider({ children }: { children: React.Rea
           const response = await getMe();
           console.log(response);
 
-          if (response.statusText === 'OK' && isAuthRoute) {
+          if (response.statusText === 'OK' && (isAuthRoute || isLandingRoute)) {
             router.replace('/home');
           }
         } catch (error) {
@@ -32,7 +34,7 @@ export default function AuthRedirectProvider({ children }: { children: React.Rea
             router.replace('/auth');
           }
         }
-      } else if (isAuthRoute) {
+      } else if (isAuthRoute || isLandingRoute) {
         router.replace('/home');
       }
 
@@ -40,13 +42,15 @@ export default function AuthRedirectProvider({ children }: { children: React.Rea
     };
 
     checkAuth();
-  }, [isAuthenticated, isProtectedRoute, isAuthRoute, router]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [pathname]);
 
-  if (loading) return null;
-
-  if (!isAuthenticated && isProtectedRoute) return null;
-
-  if (isAuthenticated && isAuthRoute) return null;
+  if (loading || (!isAuthenticated && isProtectedRoute) || (isAuthenticated && (isAuthRoute || isLandingRoute)))
+    return (
+      <div className="relative flex h-full w-full items-center justify-center">
+        <Spinner className="size-12 text-sky-500 dark:text-sky-600" />
+      </div>
+    );
 
   return <>{children}</>;
 }

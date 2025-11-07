@@ -16,11 +16,13 @@ import { useMutation } from '@tanstack/react-query';
 import axios from 'axios';
 import { ChevronsUpDown, LogOut } from 'lucide-react';
 import { useTranslations } from 'next-intl';
+import { useRouter } from 'next/navigation';
 import { toast } from 'sonner';
 
 export default function SidebarFooter() {
   const { detectLocale } = useLocaleUtils();
   const isSidebarOpen = useSidebarStore((state) => state.isSidebarOpen);
+  const router = useRouter();
   const t = useTranslations('Sidebar');
   const user = useAuthStore((state) => state.user);
 
@@ -34,6 +36,7 @@ export default function SidebarFooter() {
     },
     onSuccess: () => {
       toast.success(t('success_logout'));
+      router.replace('/');
     },
     onError: (err: unknown) => {
       if (axios.isAxiosError(err)) {
@@ -74,9 +77,11 @@ export default function SidebarFooter() {
           </Avatar>
           {isSidebarOpen && (
             <>
-              <div className="flex h-full w-full flex-col items-start justify-evenly">
-                <span className="text-sm leading-4 font-semibold text-nowrap">{`${user?.firstName ?? ''} ${user?.lastName ?? ''}`}</span>
-                <span className="text-muted-foreground text-xs font-light text-nowrap">{user?.email ?? ''}</span>
+              <div className="flex h-full w-full flex-col items-start justify-evenly overflow-auto">
+                <span className="line-clamp-1 w-full text-start text-sm leading-4 font-semibold wrap-break-word">{`${user?.firstName ?? ''} ${user?.lastName ?? ''}`}</span>
+                <span className="text-muted-foreground line-clamp-1 w-full text-start text-xs font-light wrap-break-word">
+                  {user?.email ?? ''}
+                </span>
               </div>
               <ChevronsUpDown className="max-h-6 min-h-6 max-w-6 min-w-6 text-zinc-800 dark:text-zinc-200" />
             </>

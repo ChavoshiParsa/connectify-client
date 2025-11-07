@@ -32,7 +32,11 @@ export default function SidebarMenuItem({ title, href, icon: Icon }: SidebarMenu
         >
           <Icon className={cn('max-h-6 min-h-6 max-w-6 min-w-6', isActive && 'text-sky-500')} />
           {isSidebarOpen && (
-            <span className={cn('font-medium text-nowrap', isActive && 'text-sky-500')}>{t(title)}</span>
+            <span
+              className={cn('line-clamp-1 w-full text-start font-medium wrap-break-word', isActive && 'text-sky-500')}
+            >
+              {t(title)}
+            </span>
           )}
         </Link>
       </TooltipTrigger>
