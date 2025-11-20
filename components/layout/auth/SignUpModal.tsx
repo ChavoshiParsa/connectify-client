@@ -1,6 +1,6 @@
 'use client';
 
-import { register } from '@/api/auth';
+import { authService } from '@/api/auth';
 import IconInput from '@/components/common/IconInput';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
@@ -46,7 +46,7 @@ export default function SignUpModal({ open, setOpenAction: setOpen, email, passw
     mutationKey: ['auth', 'register'],
     mutationFn: async (values: RegistrationFormType) => {
       const { firstName, lastName, avatarBase64 } = values;
-      return await register(email, password, firstName, lastName, avatarBase64);
+      return await authService.register(email, password, firstName, lastName, avatarBase64);
     },
     onSuccess: () => {
       toast.success(t('success_sign_up'));

@@ -1,4 +1,4 @@
-import { AvatarColorType } from './avatar-colors';
+import { AvatarColorType } from './users';
 
 export type MessageStatus = 'sending' | 'sent' | 'seen' | 'error' | 'none';
 

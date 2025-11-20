@@ -1,4 +1,4 @@
-import { useLocaleUtils } from '@/hooks/use-locale-utils';
+import { useLocaleUtils } from '@/hooks/app/use-locale-utils';
 
 type Props = {
   newMessageCount: number;

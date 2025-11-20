@@ -51,7 +51,10 @@
     "continue_button": "ادامه",
     "success_sign_up": "ثبت‌نام با موفقیت انجام شد!",
     "error_generic": "خطایی رخ داد. لطفاً دوباره تلاش کنید.",
-    "first_name_required": "وارد کردن نام الزامی است."
+    "first_name_required": "وارد کردن نام الزامی است.",
+    "error_compress_failed": "فشرده‌سازی انجام نشد.",
+    "error_image_too_large": "تصویر خیلی بزرگ است.",
+    "error_invalid_image_type": "فایل تصویر نامعتبر است."
   },
   "Sidebar": {
     "home": "خانه",
@@ -79,7 +82,7 @@
     "Yesterday": "دیروز"
   },
   "ChatScreen": {
-    "last_seen": "آخرین بازدید",
+    "last_seen_at": "آخرین بازدید در",
     "write_message": "پیامی بنویسید...",
     "online": "آنلاین",
     "select_chat": "یک چت را انتخاب کنید."

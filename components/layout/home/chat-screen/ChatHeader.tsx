@@ -1,23 +1,35 @@
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
+import { Spinner } from '@/components/ui/spinner';
 import { gradientAvatarClasses } from '@/constants/avatar-colors';
-import { user } from '@/constants/dummy-data';
 import { fonts } from '@/constants/fonts';
-import { useApp } from '@/hooks/use-app';
-import { useLocaleUtils } from '@/hooks/use-locale-utils';
+import { useApp } from '@/hooks/app/use-app';
+import { useLocaleUtils } from '@/hooks/app/use-locale-utils';
+import { useRoomDetails } from '@/hooks/data/use-messages';
 import { cn } from '@/lib/utils';
 import { ChevronLeft } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { useRouter } from 'next/navigation';
 
-export default function ChatHeader() {
+type Props = {
+  dmKey?: string;
+};
+
+export default function ChatHeader({ dmKey }: Props) {
   const { detectLocale, convertToPrDigitsIfPr, formatChatTime } = useLocaleUtils();
 
   const { isRtl } = useApp();
   const router = useRouter();
   const t = useTranslations('ChatScreen');
 
-  const avatarFallback = `${user.firstName.charAt(0)}‌${user.lastName.charAt(0)}`.toUpperCase(); // there is shift + space at the between.
+  const { data, isPending, isError, error } = useRoomDetails(dmKey as string);
+
+  if (isPending) return <Spinner />;
+  if (isError) return <div>{error?.message}</div>;
+
+  const user = data?.recipient;
+
+  const avatarFallback = `${user?.firstName?.charAt(0) ?? ''}‌${user?.lastName?.charAt(0) ?? ''}`.toUpperCase();
   const nameLocal = detectLocale(avatarFallback);
 
   return (
@@ -34,8 +46,8 @@ export default function ChatHeader() {
         <Avatar className="relative size-11 overflow-visible rounded-lg">
           <AvatarImage
             className="rounded-lg"
-            src={user.avatarImage}
-            alt={`${user.firstName} ${user.lastName}'s avatar`}
+            src={user.avatarUrl ?? ''}
+            alt={`${user?.firstName} ${user?.lastName}'s avatar`}
           />
           <AvatarFallback
             className={cn(
@@ -49,15 +61,17 @@ export default function ChatHeader() {
         </Avatar>
         <div className="flex h-full w-full flex-col justify-between">
           <span className={(cn('font-medium'), fonts[nameLocal])}>
-            {user.firstName} {user.lastName}
+            {user?.firstName} {user?.lastName}
           </span>
           <span
             className={cn(
               'text-sm font-light',
-              user.isOnline ? 'text-sky-500 dark:text-sky-400' : 'text-zinc-500 dark:text-zinc-400',
+              user.status === 'ONLINE' ? 'text-sky-500 dark:text-sky-400' : 'text-zinc-500 dark:text-zinc-400',
             )}
           >
-            {user.isOnline ? t('online') : `${t('last_seen')} ${convertToPrDigitsIfPr(formatChatTime(user.lastSeen))}`}
+            {user.status === 'ONLINE'
+              ? t('online')
+              : `${t('last_seen_at')} ${convertToPrDigitsIfPr(formatChatTime((user.lastActiveAt as Date).toString()))}`}
           </span>
         </div>
       </div>

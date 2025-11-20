@@ -1,14 +1,15 @@
 import IconInput from '@/components/common/IconInput';
 import MobileDrawer from '@/components/layout/drawer/MobileDrawer';
-import { chatItems } from '@/constants/dummy-data';
 import { fonts } from '@/constants/fonts';
-import { useApp } from '@/hooks/use-app';
-import { useLocaleUtils } from '@/hooks/use-locale-utils';
-import { useWindowWidth } from '@/hooks/use-window-width';
+import { useApp } from '@/hooks/app/use-app';
+import { useLocaleUtils } from '@/hooks/app/use-locale-utils';
+import { useWindowWidth } from '@/hooks/app/use-window-width';
 import { Search } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { useState } from 'react';
 import ChatItem from './ChatItem';
+import { useMyRooms } from '@/hooks/data/use-messages';
+import { Spinner } from '@/components/ui/spinner';
 
 export default function ChatList() {
   const t = useTranslations('ChatList');
@@ -21,6 +22,8 @@ export default function ChatList() {
 
   const { detectLocale } = useLocaleUtils();
   const searchInputValueLocal = detectLocale(searchInputValue);
+
+  const { data, isPending, isError, error } = useMyRooms();
 
   return (
     <div className="flex h-full w-full flex-col items-center justify-start gap-2 bg-zinc-100 pt-3 dark:bg-zinc-950">
@@ -36,19 +39,24 @@ export default function ChatList() {
         />
       </div>
       <div className="no-scrollbar flex h-full w-full flex-col divide-y overflow-y-auto">
-        {chatItems
-          .filter((item) => {
-            if (searchInputValue === '') return item;
-            if (
-              (item.firstName + ' ' + item.lastName).toLocaleLowerCase().includes(searchValue) ||
-              item.lastMessage.includes(searchValue)
-            )
-              return item;
-          })
-          .sort((a, b) => new Date(b.time).getTime() - new Date(a.time).getTime())
-          .map((item) => (
-            <ChatItem key={item.connectId} {...item} />
-          ))}
+        {/* should change to skeleton loader */}
+        {isPending ? (
+          <Spinner />
+        ) : isError ? (
+          <div>{error?.message}</div>
+        ) : (
+          data
+            ?.filter((item) => {
+              if (searchInputValue === '') return item;
+              if (
+                (item.recipient.firstName + ' ' + item.recipient.lastName).toLocaleLowerCase().includes(searchValue) ||
+                item.lastMessage?.content.toLocaleLowerCase().includes(searchValue)
+              )
+                return item;
+            })
+            .sort((a, b) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime())
+            .map((item) => <ChatItem key={item.dmKey} {...item} />)
+        )}
       </div>
     </div>
   );

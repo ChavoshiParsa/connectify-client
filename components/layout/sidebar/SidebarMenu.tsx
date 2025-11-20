@@ -9,7 +9,7 @@ const menuItems = [
   { title: 'preferences', route: '/preferences', icon: Settings2 },
   { title: 'saved_messages', route: '/saved-messages', icon: Bookmark },
   { title: 'contacts', route: '/contacts', icon: Contact },
-];
+] as const;
 
 type Props = { isDrawerMobile?: boolean };
 

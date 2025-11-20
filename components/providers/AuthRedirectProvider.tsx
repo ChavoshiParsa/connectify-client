@@ -1,6 +1,6 @@
 'use client';
 
-import { getMe } from '@/api/users';
+import { usersService } from '@/api/users';
 import { useAuthStore } from '@/stores/auth-store';
 import { isAxiosError } from 'axios';
 import { usePathname, useRouter } from 'next/navigation';
@@ -23,10 +23,9 @@ export default function AuthRedirectProvider({ children }: { children: React.Rea
     const checkAuth = async () => {
       if (!isAuthenticated) {
         try {
-          const response = await getMe();
-          console.log(response);
+          const { statusText } = await usersService.getMe();
 
-          if (response.statusText === 'OK' && (isAuthRoute || isLandingRoute)) {
+          if (statusText === 'OK' && (isAuthRoute || isLandingRoute)) {
             router.replace('/home');
           }
         } catch (error) {

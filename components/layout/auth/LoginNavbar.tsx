@@ -1,6 +1,6 @@
 import LocaleSelector from '@/components/common/LocaleSelector';
 import ModeToggle from '@/components/common/ModeToggle';
-import { useApp } from '@/hooks/use-app';
+import { useApp } from '@/hooks/app/use-app';
 import { useTranslations } from 'next-intl';
 
 type Props = {

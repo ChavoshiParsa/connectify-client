@@ -1,4 +1,4 @@
-import { logout } from '@/api/auth';
+import { authService } from '@/api/auth';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import {
   DropdownMenu,
@@ -8,7 +8,7 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { gradientAvatarClasses } from '@/constants/avatar-colors';
 import { fonts } from '@/constants/fonts';
-import { useLocaleUtils } from '@/hooks/use-locale-utils';
+import { useLocaleUtils } from '@/hooks/app/use-locale-utils';
 import { cn } from '@/lib/utils';
 import { useAuthStore } from '@/stores/auth-store';
 import { useSidebarStore } from '@/stores/ui-store';
@@ -32,7 +32,7 @@ export default function SidebarFooter() {
   const { mutate, isPending } = useMutation({
     mutationKey: ['auth', 'logout'],
     mutationFn: async () => {
-      return await logout();
+      return await authService.logout();
     },
     onSuccess: () => {
       toast.success(t('success_logout'));

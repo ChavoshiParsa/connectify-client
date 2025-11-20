@@ -1,20 +1,21 @@
 import { useAuthStore } from '@/stores/auth-store';
 import axios, { AxiosError, InternalAxiosRequestConfig } from 'axios';
-import { refresh } from './auth';
+import { authService } from './auth';
 
 type Cfg = InternalAxiosRequestConfig & {
   _retry?: boolean;
   skipAuthRefresh?: boolean;
 };
 
+export const BACKEND_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
+
 export const authApi = axios.create({
-  baseURL: process.env.NEXT_PUBLIC_API_BASE_URL,
+  baseURL: BACKEND_URL,
   withCredentials: true,
 });
 
 export const api = axios.create({
-  baseURL: process.env.NEXT_PUBLIC_API_BASE_URL,
-  withCredentials: true,
+  baseURL: BACKEND_URL,
 });
 
 let isRefreshing = false;
@@ -25,7 +26,7 @@ const processQueue = (error?: unknown) => {
   failedQueue = [];
 };
 
-const AUTH_PATHS = ['/auth/login', '/auth/register', '/auth/validate', '/auth/refresh'];
+const AUTH_PATHS = ['/auth/login', '/auth/register', '/auth/validate', '/auth/refresh', '/auth/logout'];
 
 api.interceptors.request.use((config: Cfg) => {
   const { accessToken } = useAuthStore.getState();
@@ -62,8 +63,8 @@ api.interceptors.response.use(
     isRefreshing = true;
 
     try {
-      const response = await refresh();
-      const { accessToken } = response.data;
+      const data = await authService.refresh();
+      const { accessToken } = data;
       if (accessToken) {
         originalRequest.headers['Authorization'] = `Bearer ${accessToken}`;
       }

@@ -5,10 +5,11 @@ import { LucideProps } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
+import { AppRoutes } from '@/.next/dev/types/routes';
 
 type SidebarMenuItemProps = {
   title: string;
-  href: string;
+  href: AppRoutes;
   icon: React.ForwardRefExoticComponent<Omit<LucideProps, 'ref'> & React.RefAttributes<SVGSVGElement>>;
 };
 

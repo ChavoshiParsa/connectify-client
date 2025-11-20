@@ -7,18 +7,14 @@ import type { Metadata } from 'next';
 import { getLocale, getTranslations } from 'next-intl/server';
 import './globals.css';
 
-export default async function RootLayout({
-  children,
-}: Readonly<{
-  children: React.ReactNode;
-}>) {
+export default async function RootLayout(props: LayoutProps<'/'>) {
   const locale = (await getLocale()) as LocaleType;
   const isRtl = rtlLocales.has(locale);
 
   return (
     <html lang={locale} dir={isRtl ? 'rtl' : 'ltr'} suppressHydrationWarning>
       <body className={cn(geistSans.variable, iranSans.variable, fonts[locale])}>
-        <GlobalProvider>{children}</GlobalProvider>
+        <GlobalProvider>{props.children}</GlobalProvider>
       </body>
     </html>
   );

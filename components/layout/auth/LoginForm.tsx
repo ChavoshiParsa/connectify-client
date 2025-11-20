@@ -1,6 +1,5 @@
 'use client';
 
-import { login, validateEmailPass } from '@/api/auth';
 import { AuthPageMode } from '@/app/auth/page';
 import { Button } from '@/components/ui/button';
 import { Field, FieldError, FieldGroup } from '@/components/ui/field';
@@ -18,6 +17,7 @@ import { Controller, useForm } from 'react-hook-form';
 import { toast } from 'sonner';
 import IconInput from '../../common/IconInput';
 import SignUpModal from './SignUpModal';
+import { authService } from '@/api/auth';
 
 export default function LoginForm({ pageMode }: { pageMode: AuthPageMode }) {
   const isSignInForm = pageMode === 'sign-in';
@@ -41,7 +41,7 @@ export default function LoginForm({ pageMode }: { pageMode: AuthPageMode }) {
     mutationKey: ['auth', 'login'],
     mutationFn: async (values: TranslatedSchemaType) => {
       const { email, password } = values;
-      return await login(email, password);
+      return await authService.login(email, password);
     },
     onSuccess: () => {
       router.replace('/home');
@@ -63,10 +63,10 @@ export default function LoginForm({ pageMode }: { pageMode: AuthPageMode }) {
     mutationKey: ['auth', 'validate'],
     mutationFn: async (values: TranslatedSchemaType) => {
       const { email, password } = values;
-      return await validateEmailPass(email, password);
+      return await authService.validateEmailPass(email, password);
     },
-    onSuccess: (response) => {
-      const { email, password } = response.data;
+    onSuccess: (data) => {
+      const { email, password } = data;
       if (email.ok && password.ok) {
         setIsModalOpen(true);
       } else {

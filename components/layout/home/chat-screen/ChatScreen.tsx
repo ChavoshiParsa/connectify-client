@@ -1,53 +1,114 @@
 import { Button } from '@/components/ui/button';
-import { messageItems } from '@/constants/dummy-data';
+import { Spinner } from '@/components/ui/spinner';
+import { useRoomMessages } from '@/hooks/data/use-messages';
 import { ChevronDown } from 'lucide-react';
 import { useTranslations } from 'next-intl';
-import { useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import ChatHeader from './ChatHeader';
 import ChatInput from './ChatInput';
 import Message from './Message';
 
-type Props = {
-  userId?: string;
-};
+type Props = { dmKey?: string };
 
-export default function ChatScreen({ userId }: Props) {
+export default function ChatScreen({ dmKey }: Props) {
   const t = useTranslations('ChatScreen');
-  const messageEndRef = useRef<HTMLDivElement>(null);
-  const [isMessageEndInView, setIsMessageEndInView] = useState(true);
+  const endRef = useRef<HTMLDivElement>(null);
+  const topRef = useRef<HTMLDivElement>(null);
+  const chatRef = useRef<HTMLDivElement>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
 
-  const scrollToBottom = () => {
-    if (messageEndRef.current) {
-      messageEndRef.current.scrollIntoView({ behavior: 'smooth' });
+  const [isEndInView, setIsEndInView] = useState(true);
+  const [firstRender, setFirstRender] = useState(true);
+  const previousScrollHeight = useRef(0);
+  const isAutoScrolling = useRef(false);
+
+  const scrollToBottom = useCallback((behavior: ScrollBehavior) => {
+    if (endRef.current) {
+      endRef.current.scrollIntoView({ behavior });
     }
-  };
+  }, []);
+
+  const { data, isPending, isError, error, fetchNextPage, hasNextPage, isFetchingNextPage } = useRoomMessages(
+    dmKey as string,
+  );
+
+  const messages = data?.pages
+    .flatMap((page) => page.messages)
+    .sort((a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime());
+
+  useEffect(() => {
+    if (chatRef.current && !isPending) {
+      chatRef.current.scrollTop = chatRef.current.scrollHeight;
+    }
+  }, [isPending]);
+
+  useEffect(() => {
+    if (firstRender) {
+      setTimeout(() => setFirstRender(false), 0);
+      return;
+    }
+    if (isEndInView) {
+      isAutoScrolling.current = true;
+      scrollToBottom('smooth');
+      setTimeout(() => {
+        isAutoScrolling.current = false;
+      }, 500);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [messages]);
+
+  useEffect(() => {
+    if (chatRef.current && isFetchingNextPage === false && previousScrollHeight.current > 0) {
+      const newScrollHeight = chatRef.current.scrollHeight;
+      const scrollDiff = newScrollHeight - previousScrollHeight.current;
+      chatRef.current.scrollTop += scrollDiff;
+      previousScrollHeight.current = 0;
+    }
+  }, [isFetchingNextPage]);
 
   useEffect(() => {
     const observer = new IntersectionObserver(
       ([entry]) => {
-        setIsMessageEndInView(entry.isIntersecting);
+        if (!isAutoScrolling.current) {
+          setIsEndInView(entry.isIntersecting);
+        }
       },
-      { threshold: 1.0 },
+      {
+        root: containerRef.current,
+        threshold: 1.0,
+      },
     );
 
-    const currentRef = messageEndRef.current;
-    if (currentRef) {
-      observer.observe(currentRef);
-    }
+    const current = endRef.current;
+    if (current) observer.observe(current);
 
     return () => {
-      if (currentRef) {
-        observer.unobserve(currentRef);
-      }
+      if (current) observer.unobserve(current);
     };
-  }, []);
+  }, [containerRef]);
 
   useEffect(() => {
-    const timeout = setTimeout(scrollToBottom, 100);
-    return () => clearTimeout(timeout);
-  }, []);
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting && hasNextPage && !isFetchingNextPage) {
+          if (chatRef.current) {
+            previousScrollHeight.current = chatRef.current.scrollHeight;
+          }
+          fetchNextPage();
+        }
+      },
+      { root: containerRef.current, threshold: 1.0 },
+    );
 
-  if (!userId)
+    const current = topRef.current;
+    if (current) observer.observe(current);
+
+    return () => {
+      if (current) observer.unobserve(current);
+    };
+  }, [fetchNextPage, hasNextPage, isFetchingNextPage]);
+
+  if (!dmKey)
     return (
       <div className="flex size-full items-center justify-center bg-zinc-100 dark:bg-zinc-900">
         <h2 className="animate-pulse text-xl font-medium">{t('select_chat')}</h2>
@@ -55,27 +116,41 @@ export default function ChatScreen({ userId }: Props) {
     );
 
   return (
-    <div className="relative flex size-full flex-col items-center justify-center bg-zinc-100 dark:bg-zinc-950">
-      <ChatHeader />
-      <div className="no-scrollbar mt-auto -mb-1.5 flex w-full overflow-y-auto p-2">
-        <div className="flex h-fit w-full flex-col justify-end gap-1.5">
-          {messageItems.map((item) => (
-            <Message key={item.messageId} {...item} />
-          ))}
-          <div ref={messageEndRef} />
+    <div
+      ref={containerRef}
+      className="relative flex size-full flex-col items-center justify-center bg-zinc-100 dark:bg-zinc-950"
+    >
+      <ChatHeader dmKey={dmKey} />
+
+      <div className="no-scrollbar mt-auto -mb-1.5 flex w-full overflow-y-auto p-2" ref={chatRef}>
+        <div className="flex h-fit w-full flex-col items-center justify-end gap-1.5">
+          <div ref={topRef} />
+
+          {isFetchingNextPage && <Spinner className="size-5" />}
+          {isPending ? (
+            <Spinner />
+          ) : isError ? (
+            <div>{error?.message}</div>
+          ) : (
+            messages?.map((item) => <Message key={item.id} {...item} />)
+          )}
+
+          <div ref={endRef} />
         </div>
       </div>
-      {!isMessageEndInView && (
+
+      {!isEndInView && (
         <Button
           className="absolute end-2 bottom-[72px] size-11 rounded-full bg-zinc-100 opacity-90 hover:bg-zinc-200 dark:bg-zinc-950 dark:hover:bg-zinc-900"
           variant="outline"
           size="icon"
-          onClick={scrollToBottom}
+          onClick={() => scrollToBottom('smooth')}
         >
           <ChevronDown />
         </Button>
       )}
-      <ChatInput />
+
+      <ChatInput dmKey={dmKey} />
     </div>
   );
 }

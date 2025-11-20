@@ -9,7 +9,7 @@ import {
   DrawerTitle,
   DrawerTrigger,
 } from '@/components/ui/drawer';
-import { useApp } from '@/hooks/use-app';
+import { useApp } from '@/hooks/app/use-app';
 import { PanelRight } from 'lucide-react';
 import SidebarMenu from '../sidebar/SidebarMenu';
 

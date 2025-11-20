@@ -1,28 +1,79 @@
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { fonts } from '@/constants/fonts';
-import { useApp } from '@/hooks/use-app';
-import { useLocaleUtils } from '@/hooks/use-locale-utils';
-import { cn } from '@/lib/utils';
+import { useApp } from '@/hooks/app/use-app';
+import { useLocaleUtils } from '@/hooks/app/use-locale-utils';
+import { useSendMessage, useSetTyping } from '@/hooks/data/use-messages';
+import { cn, getRecipientPublicId } from '@/lib/utils';
+import { useAuthStore } from '@/stores/auth-store';
 import { SendHorizontal } from 'lucide-react';
 import { useTranslations } from 'next-intl';
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 
-export default function ChatInput() {
+type Props = { dmKey: string };
+
+export default function ChatInput({ dmKey }: Props) {
   const t = useTranslations('ChatScreen');
   const { locale, isRtl } = useApp();
+
+  const myPublicId = useAuthStore((state) => state.user?.publicId);
+  const recipientPublicId = getRecipientPublicId(dmKey, myPublicId);
 
   const submitFormRef = useRef<HTMLButtonElement>(null);
   const textAreaRef = useRef<HTMLTextAreaElement>(null);
   const [message, setMessage] = useState('');
 
-  async function sendMessageHandler(event: React.FormEvent<HTMLFormElement>) {
-    event.preventDefault();
-  }
+  const typingTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  const { mutate: setTyping } = useSetTyping();
+  const { mutate: sendMessage, isPending: isSending } = useSendMessage();
 
   function textareaChangeHandler(e: React.ChangeEvent<HTMLTextAreaElement>) {
-    setMessage(e.target.value);
-    // is typing ...
+    const value = e.target.value;
+    setMessage(value);
+
+    if (!value.trim()) {
+      return;
+    }
+
+    if (typingTimeoutRef.current) {
+      clearTimeout(typingTimeoutRef.current);
+    }
+
+    typingTimeoutRef.current = setTimeout(() => {
+      setTyping({ recipientPublicId });
+    }, 700);
+  }
+
+  useEffect(() => {
+    return () => {
+      if (typingTimeoutRef.current) {
+        clearTimeout(typingTimeoutRef.current);
+      }
+    };
+  }, []);
+
+  async function sendMessageHandler(event: React.FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+
+    const trimmed = message.trim();
+    if (!trimmed) {
+      return;
+    }
+
+    if (!recipientPublicId) {
+      return;
+    }
+
+    sendMessage(
+      { dmKey, recipientPublicId, content: trimmed },
+      {
+        onSuccess: () => {
+          setMessage('');
+          textAreaRef.current?.focus();
+        },
+      },
+    );
   }
 
   function keyDownHandler(e: React.KeyboardEvent<HTMLTextAreaElement>) {
@@ -53,7 +104,7 @@ export default function ChatInput() {
         onKeyDown={keyDownHandler}
         autoComplete="off"
         required
-        // disabled={isLoading}
+        disabled={isSending}
       />
       <Button
         className="min-h-12 min-w-12 bg-zinc-100 hover:bg-sky-400 dark:bg-zinc-950 dark:hover:bg-sky-500"

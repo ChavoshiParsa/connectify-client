@@ -51,7 +51,10 @@
     "continue_button": "Continue",
     "success_sign_up": "Sign-up successful!",
     "error_generic": "Something went wrong. Please try again.",
-    "first_name_required": "First name is required."
+    "first_name_required": "First name is required.",
+    "error_compress_failed": "Image couldn't be compressed.",
+    "error_image_too_large": "Image is too large.",
+    "error_invalid_image_type": "Invalid image file."
   },
   "Sidebar": {
     "home": "Home",
@@ -79,7 +82,7 @@
     "Yesterday": "Yesterday"
   },
   "ChatScreen": {
-    "last_seen": "Last seen",
+    "last_seen_at": "Last seen at",
     "write_message": "Write a message...",
     "online": "Online",
     "select_chat": "Select a chat."

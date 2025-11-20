@@ -1,7 +1,7 @@
 'use client';
 
 import { AuthPageMode } from '@/app/auth/page';
-import { useApp } from '@/hooks/use-app';
+import { useApp } from '@/hooks/app/use-app';
 import { cn } from '@/lib/utils';
 import { motion } from 'motion/react';
 import Image from 'next/image';

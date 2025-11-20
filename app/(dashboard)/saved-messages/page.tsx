@@ -1,7 +1,7 @@
 'use client';
 
 import MobileDrawer from '@/components/layout/drawer/MobileDrawer';
-import { useWindowWidth } from '@/hooks/use-window-width';
+import { useWindowWidth } from '@/hooks/app/use-window-width';
 
 export default function SavedMessagesPage() {
   const { isXs } = useWindowWidth();
