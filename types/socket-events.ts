@@ -21,8 +21,8 @@ export type MessageDeletedData = {
   deletedAt: ISODateString;
 };
 
-export type MessageSeenData = {
-  messageId: string;
+export type MessagesSeenData = {
+  messageId: string[];
   dmKey: string;
   seenByPublicId: string;
   readAt: ISODateString;
@@ -54,7 +54,7 @@ export type ServerToClientEvents = {
   'message:new': (payload: MessageNewData) => void;
   'message:edited': (payload: MessageEditedData) => void;
   'message:deleted': (payload: MessageDeletedData) => void;
-  'message:seen': (payload: MessageSeenData) => void;
+  'messages:seen': (payload: MessagesSeenData) => void;
   'message:seen-all': (payload: MessageSeenAllData) => void;
   // 'typing:start': (payload: TypingStartData) => void;
   // 'user:status': (payload: UserStatusData) => void;

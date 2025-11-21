@@ -54,7 +54,11 @@ export default function ChatList() {
               )
                 return item;
             })
-            .sort((a, b) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime())
+            .sort(
+              (a, b) =>
+                new Date(b.lastMessage?.createdAt as Date).getTime() -
+                new Date(a.lastMessage?.createdAt as Date).getTime(),
+            )
             .map((item) => <ChatItem key={item.dmKey} {...item} />)
         )}
       </div>

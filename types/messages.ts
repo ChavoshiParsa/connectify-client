@@ -1,6 +1,7 @@
 import { SafeUser } from './users';
 
 export type DmLastMessage = {
+  clientId?: string; // client added
   id: string;
   createdAt: Date;
   content: string;
@@ -8,6 +9,7 @@ export type DmLastMessage = {
   sender: {
     firstName: string;
     lastName: string | null;
+    publicId: string;
   };
   receipts: {
     readAt: Date | null;
@@ -32,6 +34,7 @@ export type MyRoomsResponse = DmRoomSummary[];
 export type RoomDetailsResponse = Omit<DmRoomSummary, 'unreadCount'>;
 
 export type RoomMessageItem = {
+  clientId?: string; // client added
   id: string;
   createdAt: Date;
   content: string;
@@ -71,11 +74,17 @@ export type SetTypingResponse = {
   recipientPublicId: string;
 };
 
-export type SeenMessageResponse = {
-  success: boolean;
-  messageId: string;
-  alreadyRead: boolean;
-};
+export type SeenMessageResponse =
+  | {
+      success: boolean;
+      updated: never[];
+      count?: undefined;
+    }
+  | {
+      success: boolean;
+      updated: string[];
+      count: number;
+    };
 
 export type SeenAllMessagesResponse = {
   success: boolean;

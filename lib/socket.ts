@@ -15,14 +15,6 @@ export function getSocket(): Socket<ServerToClientEvents> {
       },
       transports: ['websocket', 'polling'],
     });
-
-    socket.on('connect', () => {
-      console.log('✅ socket connected:', socket?.id);
-    });
-
-    socket.on('connect_error', (err) => {
-      console.error('❌ socket connect_error:', err.message, err);
-    });
   }
 
   return socket;

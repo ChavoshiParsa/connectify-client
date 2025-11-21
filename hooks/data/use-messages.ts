@@ -1,18 +1,14 @@
 import { messagesService } from '@/api/messages';
 import { QUERY_KEYS } from '@/constants/query-keys';
-import { useAuthStore } from '@/stores/auth-store';
 import {
   DeleteMessageResponse,
   EditMessageResponse,
-  MyRoomsResponse,
-  RoomMessageItem,
-  RoomMessagesResponse,
   SeenAllMessagesResponse,
   SeenMessageResponse,
   SendMessageResponse,
   SetTypingResponse,
 } from '@/types/messages';
-import { InfiniteData, useInfiniteQuery, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { useInfiniteQuery, useMutation, useQuery } from '@tanstack/react-query';
 
 export function useMyRooms() {
   return useQuery({
@@ -48,156 +44,9 @@ export function useMessageDetails(messageId: string, enabled: boolean = true) {
   });
 }
 
-type SendMessageVariables = {
-  dmKey: string;
-  recipientPublicId: string;
-  content: string;
-};
-
-type SendMessageContext = {
-  tempId: string;
-};
-
 export function useSendMessage() {
-  const queryClient = useQueryClient();
-  const me = useAuthStore((state) => state.user);
-
-  return useMutation<SendMessageResponse, unknown, SendMessageVariables, SendMessageContext>({
+  return useMutation<SendMessageResponse, unknown, { recipientPublicId: string; content: string }>({
     mutationFn: ({ recipientPublicId, content }) => messagesService.sendMessage(recipientPublicId, content),
-
-    async onMutate(variables) {
-      const { dmKey, content } = variables;
-
-      const tempId = `temp-${Date.now()}-${Math.random()}`;
-      const now = new Date();
-
-      const optimisticMessage: RoomMessageItem = {
-        id: tempId,
-        createdAt: now,
-        content,
-        editedAt: null,
-        sender: me!,
-        receipts: [
-          {
-            deliveredAt: now,
-            readAt: null,
-          },
-        ],
-        isPending: true,
-        isError: false,
-      };
-
-      queryClient.setQueryData<InfiniteData<RoomMessagesResponse>>([QUERY_KEYS.ROOM_MESSAGES, dmKey], (old) => {
-        if (!old) return old;
-
-        const newPages = old.pages.map((page, index) =>
-          index === 0
-            ? {
-                ...page,
-                messages: [optimisticMessage, ...page.messages],
-              }
-            : page,
-        );
-
-        return { ...old, pages: newPages };
-      });
-
-      return { tempId };
-    },
-
-    async onSuccess(data, variables, context) {
-      const { dmKey } = variables;
-      const tempId = context?.tempId;
-
-      const me = useAuthStore.getState().user;
-
-      const { ...sender } = me!;
-
-      const { messageId, createdAt: createdAtStr, content } = data;
-      const createdAt = new Date(createdAtStr);
-
-      const newMessageWithReceipts: RoomMessageItem = {
-        id: messageId,
-        createdAt,
-        content: content,
-        editedAt: null,
-        sender: sender,
-        receipts: [
-          {
-            deliveredAt: createdAt,
-            readAt: null,
-          },
-        ],
-      };
-
-      queryClient.setQueryData<InfiniteData<RoomMessagesResponse>>([QUERY_KEYS.ROOM_MESSAGES, dmKey], (old) => {
-        if (!old) return old;
-
-        const newPages = old.pages.map((page, index) => {
-          if (index !== 0) return page;
-
-          const withoutTemp = page.messages.filter((msg) => msg.id !== tempId);
-
-          return {
-            ...page,
-            messages: [newMessageWithReceipts, ...withoutTemp],
-          };
-        });
-
-        return { ...old, pages: newPages };
-      });
-
-      queryClient.setQueryData<MyRoomsResponse>([QUERY_KEYS.MY_ROOMS], (oldRooms) => {
-        if (!oldRooms) return oldRooms;
-
-        let roomExists = false;
-
-        const updatedRooms = oldRooms.map((room) => {
-          if (room.dmKey !== dmKey) return room;
-          roomExists = true;
-
-          return {
-            ...room,
-            lastMessage: {
-              id: messageId,
-              createdAt,
-              content,
-              editedAt: null,
-              sender: {
-                firstName: sender.firstName,
-                lastName: sender.lastName ?? null,
-              },
-              receipts: [{ readAt: null }],
-            },
-            updatedAt: new Date(),
-          };
-        });
-
-        if (!roomExists) {
-          return oldRooms;
-        }
-
-        return updatedRooms;
-      });
-    },
-
-    onError(error, variables, context) {
-      const { dmKey } = variables;
-      const tempId = context?.tempId;
-
-      if (!tempId) return;
-
-      queryClient.setQueryData<InfiniteData<RoomMessagesResponse>>([QUERY_KEYS.ROOM_MESSAGES, dmKey], (old) => {
-        if (!old) return old;
-
-        const newPages = old.pages.map((page) => ({
-          ...page,
-          messages: page.messages.map((msg) => (msg.id === tempId ? { ...msg, isPending: false, isError: true } : msg)),
-        }));
-
-        return { ...old, pages: newPages };
-      });
-    },
   });
 }
 
@@ -208,8 +57,14 @@ export function useSetTyping() {
 }
 
 export function useSeenMessage() {
-  return useMutation<SeenMessageResponse, unknown, { messageId: string; dmKey: string }>({
+  return useMutation<SeenMessageResponse, unknown, { messageId: string }>({
     mutationFn: ({ messageId }) => messagesService.seenMessage(messageId),
+  });
+}
+
+export function useSeenMessages() {
+  return useMutation<SeenMessageResponse, unknown, { messageIds: string[] }>({
+    mutationFn: ({ messageIds }) => messagesService.seenMessages(messageIds),
   });
 }
 

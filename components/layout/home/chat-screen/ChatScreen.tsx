@@ -1,5 +1,6 @@
 import { Button } from '@/components/ui/button';
 import { Spinner } from '@/components/ui/spinner';
+import { useDebouncedSeenMessages } from '@/hooks/data/use-debounced-seen-messages';
 import { useRoomMessages } from '@/hooks/data/use-messages';
 import { ChevronDown } from 'lucide-react';
 import { useTranslations } from 'next-intl';
@@ -35,6 +36,8 @@ export default function ChatScreen({ dmKey }: Props) {
   const messages = data?.pages
     .flatMap((page) => page.messages)
     .sort((a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime());
+
+  const { markAsSeen, cleanup } = useDebouncedSeenMessages(dmKey || '', 500);
 
   useEffect(() => {
     if (chatRef.current && !isPending) {
@@ -108,6 +111,13 @@ export default function ChatScreen({ dmKey }: Props) {
     };
   }, [fetchNextPage, hasNextPage, isFetchingNextPage]);
 
+  // Cleanup debounced messages on unmount or dmKey change
+  useEffect(() => {
+    return () => {
+      cleanup();
+    };
+  }, [cleanup, dmKey]);
+
   if (!dmKey)
     return (
       <div className="flex size-full items-center justify-center bg-zinc-100 dark:bg-zinc-900">
@@ -125,16 +135,17 @@ export default function ChatScreen({ dmKey }: Props) {
       <div className="no-scrollbar mt-auto -mb-1.5 flex w-full overflow-y-auto p-2" ref={chatRef}>
         <div className="flex h-fit w-full flex-col items-center justify-end gap-1.5">
           <div ref={topRef} />
-
           {isFetchingNextPage && <Spinner className="size-5" />}
           {isPending ? (
             <Spinner />
           ) : isError ? (
             <div>{error?.message}</div>
           ) : (
-            messages?.map((item) => <Message key={item.id} {...item} />)
+            messages?.map((item) => {
+              const uniqueKey = item.clientId || item.id || item.createdAt.toString();
+              return <Message key={uniqueKey} dmKey={dmKey} onVisible={markAsSeen} {...item} />;
+            })
           )}
-
           <div ref={endRef} />
         </div>
       </div>

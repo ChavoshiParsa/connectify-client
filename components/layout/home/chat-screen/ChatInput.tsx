@@ -55,22 +55,21 @@ export default function ChatInput({ dmKey }: Props) {
 
   async function sendMessageHandler(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
-
     const trimmed = message.trim();
     if (!trimmed) {
       return;
     }
-
     if (!recipientPublicId) {
       return;
     }
-
     sendMessage(
-      { dmKey, recipientPublicId, content: trimmed },
+      { recipientPublicId, content: trimmed },
       {
         onSuccess: () => {
           setMessage('');
-          textAreaRef.current?.focus();
+          setTimeout(() => {
+            textAreaRef.current?.focus();
+          }, 10);
         },
       },
     );

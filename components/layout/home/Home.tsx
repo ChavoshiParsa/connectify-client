@@ -3,13 +3,11 @@
 import { ResizableHandle, ResizablePanel, ResizablePanelGroup } from '@/components/ui/resizable';
 import { MD } from '@/constants/screen-breakpoints';
 import { useElementWidth } from '@/hooks/app/use-element-width';
+import { useWebSocketEvents } from '@/hooks/socket/use-web-socket';
 import { cn } from '@/lib/utils';
 import { useSidebarStore } from '@/stores/ui-store';
 import ChatList from './chat-list/ChatList';
 import ChatScreen from './chat-screen/ChatScreen';
-import { useWebSocketEvents } from '@/hooks/socket/use-web-socket';
-import { useSeenAllMessages } from '@/hooks/data/use-messages';
-import { useEffect } from 'react';
 
 type Props = {
   dmKey?: string;
@@ -22,12 +20,6 @@ export default function Home({ dmKey }: Props) {
   const isDivUnderMd = divWidth < MD && isSidebarOpen;
 
   useWebSocketEvents();
-
-  const { mutate } = useSeenAllMessages();
-
-  useEffect(() => {
-    if (dmKey) mutate({ dmKey });
-  }, [dmKey, mutate]);
 
   return (
     <main className="xs:ms-14 xs:w-[calc(100%-3.5rem)] flex h-full w-full md:m-0 md:w-full" ref={mainRef}>

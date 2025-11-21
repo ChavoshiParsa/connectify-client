@@ -50,6 +50,13 @@ export const messagesService = {
     return data;
   },
 
+  seenMessages: async (messageIds: string[]) => {
+    const { data } = await api.post<SeenMessageResponse>('dm/seen-messages', {
+      messageIds,
+    });
+    return data;
+  },
+
   seenAllMessages: async (dmKey: string) => {
     const { data } = await api.post<SeenAllMessagesResponse>(`dm/seen-all-messages/${dmKey}`);
     return data;

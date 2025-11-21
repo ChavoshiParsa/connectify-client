@@ -6,6 +6,7 @@ import { fonts } from '@/constants/fonts';
 import { rtlLocales } from '@/constants/locales';
 import { useLocaleUtils } from '@/hooks/app/use-locale-utils';
 import { cn } from '@/lib/utils';
+import { useAuthStore } from '@/stores/auth-store';
 import { DmRoomSummary } from '@/types/messages';
 import { Check, CheckCheck, CircleAlert, Clock, Pencil } from 'lucide-react';
 import Link from 'next/link';
@@ -18,11 +19,16 @@ export default function ChatItem({ recipient, lastMessage, dmKey, unreadCount }:
     `${recipient?.firstName?.charAt(0) ?? ''}‌${recipient?.lastName?.charAt(0) ?? ''}`.toUpperCase();
   const nameLocal = detectLocale(avatarFallback);
   const messageLocal = detectLocale(lastMessage?.content ?? '');
+  const myPublicId = useAuthStore((state) => state.user?.publicId);
+
+  const isMyMessage = myPublicId === lastMessage?.sender.publicId;
+  const isAlreadyRead = lastMessage?.receipts.some((item) => item.readAt);
 
   let icon;
-  if (lastMessage?.isPending) icon = <Clock className="size-2.5 text-zinc-500" />;
+  if (!isMyMessage) icon = null;
+  else if (lastMessage?.isPending) icon = <Clock className="size-2.5 text-zinc-500" />;
   else if (lastMessage?.isError) icon = <CircleAlert className="text-destructive size-2.5" />;
-  else if (lastMessage?.receipts.some((item) => item.readAt)) icon = <CheckCheck className="size-3 text-sky-500" />;
+  else if (isAlreadyRead) icon = <CheckCheck className="size-3 text-sky-500" />;
   else icon = <Check className="size-3 text-sky-500" />;
 
   const pathname = usePathname();
