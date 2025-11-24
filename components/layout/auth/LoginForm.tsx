@@ -4,20 +4,16 @@ import { AuthPageMode } from '@/app/auth/page';
 import { Button } from '@/components/ui/button';
 import { Field, FieldError, FieldGroup } from '@/components/ui/field';
 import { Spinner } from '@/components/ui/spinner';
+import { useLogin, useValidate } from '@/hooks/data/use-auth';
 import { schemaWithTranslation, TranslatedSchemaType } from '@/schemas/schemas';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { useMutation } from '@tanstack/react-query';
-import axios from 'axios';
 import { Lock, Mail } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 import { Controller, useForm } from 'react-hook-form';
-import { toast } from 'sonner';
 import IconInput from '../../common/IconInput';
 import SignUpModal from './SignUpModal';
-import { authService } from '@/api/auth';
 
 export default function LoginForm({ pageMode }: { pageMode: AuthPageMode }) {
   const isSignInForm = pageMode === 'sign-in';
@@ -26,7 +22,6 @@ export default function LoginForm({ pageMode }: { pageMode: AuthPageMode }) {
   const [tempEmail, setTempEmail] = useState('');
   const [tempPassword, setTempPassword] = useState('');
 
-  const router = useRouter();
   const t = useTranslations('LoginPage');
 
   const form = useForm<TranslatedSchemaType>({
@@ -37,62 +32,16 @@ export default function LoginForm({ pageMode }: { pageMode: AuthPageMode }) {
     },
   });
 
-  const loginMutation = useMutation({
-    mutationKey: ['auth', 'login'],
-    mutationFn: async (values: TranslatedSchemaType) => {
-      const { email, password } = values;
-      return await authService.login(email, password);
-    },
-    onSuccess: () => {
-      router.replace('/home');
-      toast.success(t('success_sign_in'));
-    },
-    onError: (err: unknown) => {
-      if (axios.isAxiosError(err)) {
-        const msg = err.response?.data?.message;
-        toast.error(typeof msg === 'string' ? t(msg) : t('error_generic'));
-      } else if (err instanceof Error) {
-        toast.error(err.message);
-      } else {
-        toast.error(t('error_generic'));
-      }
-    },
-  });
-
-  const validateMutation = useMutation({
-    mutationKey: ['auth', 'validate'],
-    mutationFn: async (values: TranslatedSchemaType) => {
-      const { email, password } = values;
-      return await authService.validateEmailPass(email, password);
-    },
-    onSuccess: (data) => {
-      const { email, password } = data;
-      if (email.ok && password.ok) {
-        setIsModalOpen(true);
-      } else {
-        if (email?.reason) toast.warning(t(email?.reason));
-        if (password?.issues?.length > 0) password?.issues?.map((p: string) => toast.warning(t(p)));
-      }
-    },
-    onError: (err: unknown) => {
-      if (axios.isAxiosError(err)) {
-        const msg = err.response?.data?.message;
-        toast.error(typeof msg === 'string' ? t(msg) : t('error_generic'));
-      } else if (err instanceof Error) {
-        toast.error(err.message);
-      } else {
-        toast.error(t('error_generic'));
-      }
-    },
-  });
+  const validate = useValidate(setIsModalOpen);
+  const login = useLogin();
 
   const onSubmit = (values: TranslatedSchemaType) => {
     if (isSignInForm) {
-      loginMutation.mutate(values);
+      login.mutate(values);
     } else {
       setTempEmail(values.email);
       setTempPassword(values.password);
-      validateMutation.mutate(values);
+      validate.mutate(values);
     }
   };
 
@@ -142,9 +91,9 @@ export default function LoginForm({ pageMode }: { pageMode: AuthPageMode }) {
             className="mt-8 w-full bg-sky-500 py-6 text-lg font-bold text-white transition hover:bg-sky-600 active:scale-[.97] dark:bg-sky-600 dark:hover:bg-sky-700"
             type="submit"
             form="login-form"
-            disabled={loginMutation.isPending || validateMutation.isPending}
+            disabled={login.isPending || validate.isPending}
           >
-            {loginMutation.isPending || validateMutation.isPending ? (
+            {login.isPending || validate.isPending ? (
               <Spinner className="size-6 text-zinc-800 dark:text-zinc-200" />
             ) : (
               t(isSignInForm ? 'sign_in' : 'sign_up')

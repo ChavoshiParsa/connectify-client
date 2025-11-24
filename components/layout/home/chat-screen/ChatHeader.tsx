@@ -7,6 +7,7 @@ import { useApp } from '@/hooks/app/use-app';
 import { useLocaleUtils } from '@/hooks/app/use-locale-utils';
 import { useRoomDetails } from '@/hooks/data/use-messages';
 import { cn } from '@/lib/utils';
+import { useTypingStore } from '@/stores/typing-store';
 import { ChevronLeft } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { useRouter } from 'next/navigation';
@@ -23,6 +24,8 @@ export default function ChatHeader({ dmKey }: Props) {
   const t = useTranslations('ChatScreen');
 
   const { data, isPending, isError, error } = useRoomDetails(dmKey as string);
+
+  const isSomeoneTyping = useTypingStore((state) => state.typingUsers.some((u) => u.dmKey === dmKey));
 
   if (isPending) return <Spinner />;
   if (isError) return <div>{error?.message}</div>;
@@ -69,9 +72,11 @@ export default function ChatHeader({ dmKey }: Props) {
               user.status === 'ONLINE' ? 'text-sky-500 dark:text-sky-400' : 'text-zinc-500 dark:text-zinc-400',
             )}
           >
-            {user.status === 'ONLINE'
-              ? t('online')
-              : `${t('last_seen_at')} ${convertToPrDigitsIfPr(formatChatTime((user.lastActiveAt as Date).toString()))}`}
+            {isSomeoneTyping
+              ? t('typing')
+              : user.status === 'ONLINE'
+                ? t('online')
+                : `${t('last_seen_at')} ${convertToPrDigitsIfPr(formatChatTime((user.lastActiveAt as Date).toString()))}`}
           </span>
         </div>
       </div>

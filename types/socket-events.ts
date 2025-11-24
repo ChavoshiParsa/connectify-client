@@ -1,3 +1,5 @@
+import { UserStatus } from './users';
+
 type ISODateString = string;
 
 export type MessageNewData = {
@@ -34,21 +36,21 @@ export type MessageSeenAllData = {
   readAt: ISODateString;
 };
 
-// export type TypingStartData = {
-//   dmKey: string;
-//   userPublicId: string;
-// };
+export type TypingStartData = {
+  dmKey: string;
+  userPublicId: string;
+};
 
-// export type UserStatusData = {
-//   publicId: string;
-//   status: 'ONLINE' | 'OFFLINE';
-//   lastActiveAt: ISODateString;
-// };
+export type UserStatusData = {
+  publicId: string;
+  status: UserStatus;
+  lastActiveAt: ISODateString;
+};
 
-// export type UserProfileUpdatedData = {
-//   publicId: string;
-//   updatedFields: string[];
-// };
+export type UserProfileUpdatedData = {
+  publicId: string;
+  updatedFields: string[];
+};
 
 export type ServerToClientEvents = {
   'message:new': (payload: MessageNewData) => void;
@@ -56,9 +58,7 @@ export type ServerToClientEvents = {
   'message:deleted': (payload: MessageDeletedData) => void;
   'messages:seen': (payload: MessagesSeenData) => void;
   'message:seen-all': (payload: MessageSeenAllData) => void;
-  // 'typing:start': (payload: TypingStartData) => void;
-  // 'user:status': (payload: UserStatusData) => void;
-  // 'user:profile-updated': (payload: UserProfileUpdatedData) => void;
+  'typing:start': (payload: TypingStartData) => void;
+  'user:status': (payload: UserStatusData) => void;
+  'user:profile-updated': (payload: UserProfileUpdatedData) => void;
 };
-
-// export type ClientToServerEvents = object;

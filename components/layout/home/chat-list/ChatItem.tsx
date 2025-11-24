@@ -7,8 +7,10 @@ import { rtlLocales } from '@/constants/locales';
 import { useLocaleUtils } from '@/hooks/app/use-locale-utils';
 import { cn } from '@/lib/utils';
 import { useAuthStore } from '@/stores/auth-store';
+import { useTypingStore } from '@/stores/typing-store';
 import { DmRoomSummary } from '@/types/messages';
 import { Check, CheckCheck, CircleAlert, Clock, Pencil } from 'lucide-react';
+import { useTranslations } from 'next-intl';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 
@@ -33,6 +35,9 @@ export default function ChatItem({ recipient, lastMessage, dmKey, unreadCount }:
 
   const pathname = usePathname();
   const isActive = pathname.endsWith(dmKey);
+
+  const t = useTranslations('ChatList');
+  const isSomeoneTyping = useTypingStore((state) => state.typingUsers.some((u) => u.dmKey === dmKey));
 
   return (
     <Link
@@ -75,12 +80,13 @@ export default function ChatItem({ recipient, lastMessage, dmKey, unreadCount }:
         <div className="flex w-full items-center justify-center gap-2">
           <p
             className={cn(
-              'line-clamp-1 w-full overflow-hidden text-start text-xs wrap-break-word text-zinc-500',
+              'line-clamp-1 w-full overflow-hidden text-start text-xs wrap-break-word',
+              isSomeoneTyping && !isActive ? 'text-sky-500 dark:text-sky-400' : 'text-zinc-500 dark:text-zinc-400',
               fonts[messageLocal],
             )}
             dir={rtlLocales.has(messageLocal) ? 'rtl' : 'ltr'}
           >
-            {lastMessage?.content}
+            {isSomeoneTyping && !isActive ? t('typing') : lastMessage?.content}
           </p>
           <NewMessageBadge newMessageCount={unreadCount} />
         </div>

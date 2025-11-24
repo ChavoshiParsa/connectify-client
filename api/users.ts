@@ -12,11 +12,11 @@ export const usersService = {
 
   getTotalUnreadCount: async () => {
     const { data } = await api.get<{ unreadCount: number }>('/users/me/unread-count');
-    return { data };
+    return data;
   },
 
   searchUsers: async (q: string) => {
     const { data } = await api.get<UsersSearchResponse>('/users/search', { params: { q } });
-    return { data };
+    return data;
   },
 };

@@ -69,7 +69,11 @@
     "app_name": "Connectify"
   },
   "ChatList": {
-    "search": "Search"
+    "search": "Search",
+    "no_results": "No results found.",
+    "online": "Online",
+    "last_seen_at": "Last seen at",
+    "typing": "typing..."
   },
   "Date": {
     "Saturday": "Saturday",
@@ -85,6 +89,7 @@
     "last_seen_at": "Last seen at",
     "write_message": "Write a message...",
     "online": "Online",
-    "select_chat": "Select a chat."
+    "select_chat": "Select a chat.",
+    "typing": "typing..."
   }
 }

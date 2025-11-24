@@ -5,7 +5,11 @@ export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
 
-export function getRecipientPublicId(dmKey: string, myPublicId?: string) {
-  const parts = dmKey.split('~');
-  return parts[0] === myPublicId ? parts[1] : parts[1] === myPublicId ? parts[0] : '';
+export function makeDmKey(a: string, b: string): string {
+  return [a, b].sort().join('~');
+}
+
+export function getPartnerPublicKey(publicId: string, dmKey: string): string | null {
+  const [a, b] = dmKey.split('~') as [string, string];
+  return publicId === a ? b : publicId === b ? a : null;
 }

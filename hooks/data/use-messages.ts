@@ -1,5 +1,5 @@
 import { messagesService } from '@/api/messages';
-import { QUERY_KEYS } from '@/constants/query-keys';
+import { MESSAGES } from '@/constants/query-keys';
 import {
   DeleteMessageResponse,
   EditMessageResponse,
@@ -12,14 +12,14 @@ import { useInfiniteQuery, useMutation, useQuery } from '@tanstack/react-query';
 
 export function useMyRooms() {
   return useQuery({
-    queryKey: [QUERY_KEYS.MY_ROOMS],
+    queryKey: [MESSAGES.MY_ROOMS],
     queryFn: () => messagesService.getMyRooms(),
   });
 }
 
 export function useRoomDetails(dmKey: string, enabled: boolean = true) {
   return useQuery({
-    queryKey: [QUERY_KEYS.ROOM_DETAILS, dmKey],
+    queryKey: [MESSAGES.ROOM_DETAILS, dmKey],
     queryFn: () => messagesService.getRoomDetails(dmKey),
     enabled: !!dmKey && enabled,
   });
@@ -27,7 +27,7 @@ export function useRoomDetails(dmKey: string, enabled: boolean = true) {
 
 export function useRoomMessages(dmKey?: string, enabled = true) {
   return useInfiniteQuery({
-    queryKey: [QUERY_KEYS.ROOM_MESSAGES, dmKey],
+    queryKey: [MESSAGES.ROOM_MESSAGES, dmKey],
     queryFn: ({ pageParam }: { pageParam: string | undefined }) =>
       messagesService.getRoomMessages(dmKey as string, pageParam),
     enabled: !!dmKey && enabled,
@@ -38,15 +38,24 @@ export function useRoomMessages(dmKey?: string, enabled = true) {
 
 export function useMessageDetails(messageId: string, enabled: boolean = true) {
   return useQuery({
-    queryKey: [QUERY_KEYS.MESSAGE_DETAILS, messageId],
+    queryKey: [MESSAGES.MESSAGE_DETAILS, messageId],
     queryFn: () => messagesService.getMessageDetails(messageId),
     enabled: !!messageId && enabled,
   });
 }
 
-export function useSendMessage() {
+export function useSendMessage(
+  textAreaRef: React.RefObject<HTMLTextAreaElement | null>,
+  setMessage: React.Dispatch<React.SetStateAction<string>>,
+) {
   return useMutation<SendMessageResponse, unknown, { recipientPublicId: string; content: string }>({
     mutationFn: ({ recipientPublicId, content }) => messagesService.sendMessage(recipientPublicId, content),
+    onSuccess: () => {
+      setMessage('');
+      setTimeout(() => {
+        textAreaRef.current?.focus();
+      }, 1);
+    },
   });
 }
 

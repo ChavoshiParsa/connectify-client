@@ -4,7 +4,7 @@ import { fonts } from '@/constants/fonts';
 import { useApp } from '@/hooks/app/use-app';
 import { useLocaleUtils } from '@/hooks/app/use-locale-utils';
 import { useSendMessage, useSetTyping } from '@/hooks/data/use-messages';
-import { cn, getRecipientPublicId } from '@/lib/utils';
+import { cn, getPartnerPublicKey } from '@/lib/utils';
 import { useAuthStore } from '@/stores/auth-store';
 import { SendHorizontal } from 'lucide-react';
 import { useTranslations } from 'next-intl';
@@ -16,8 +16,8 @@ export default function ChatInput({ dmKey }: Props) {
   const t = useTranslations('ChatScreen');
   const { locale, isRtl } = useApp();
 
-  const myPublicId = useAuthStore((state) => state.user?.publicId);
-  const recipientPublicId = getRecipientPublicId(dmKey, myPublicId);
+  const myPublicId = useAuthStore((state) => state.user?.publicId) as string;
+  const recipientPublicId = getPartnerPublicKey(myPublicId, dmKey) as string;
 
   const submitFormRef = useRef<HTMLButtonElement>(null);
   const textAreaRef = useRef<HTMLTextAreaElement>(null);
@@ -25,8 +25,8 @@ export default function ChatInput({ dmKey }: Props) {
 
   const typingTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  const { mutate: setTyping } = useSetTyping();
-  const { mutate: sendMessage, isPending: isSending } = useSendMessage();
+  const setTyping = useSetTyping();
+  const sendMessage = useSendMessage(textAreaRef, setMessage);
 
   function textareaChangeHandler(e: React.ChangeEvent<HTMLTextAreaElement>) {
     const value = e.target.value;
@@ -41,7 +41,7 @@ export default function ChatInput({ dmKey }: Props) {
     }
 
     typingTimeoutRef.current = setTimeout(() => {
-      setTyping({ recipientPublicId });
+      setTyping.mutate({ recipientPublicId });
     }, 700);
   }
 
@@ -62,17 +62,7 @@ export default function ChatInput({ dmKey }: Props) {
     if (!recipientPublicId) {
       return;
     }
-    sendMessage(
-      { recipientPublicId, content: trimmed },
-      {
-        onSuccess: () => {
-          setMessage('');
-          setTimeout(() => {
-            textAreaRef.current?.focus();
-          }, 10);
-        },
-      },
-    );
+    sendMessage.mutate({ recipientPublicId, content: trimmed });
   }
 
   function keyDownHandler(e: React.KeyboardEvent<HTMLTextAreaElement>) {
@@ -103,7 +93,7 @@ export default function ChatInput({ dmKey }: Props) {
         onKeyDown={keyDownHandler}
         autoComplete="off"
         required
-        disabled={isSending}
+        disabled={sendMessage.isPending}
       />
       <Button
         className="min-h-12 min-w-12 bg-zinc-100 hover:bg-sky-400 dark:bg-zinc-950 dark:hover:bg-sky-500"
