@@ -76,7 +76,7 @@ export default function Message({ id, content, isPending, isError, receipts, sen
   return (
     <motion.div
       className={cn(
-        'bubble flex w-4/5 max-w-max min-w-24 flex-col gap-1 p-2',
+        'bubble flex w-fit max-w-[80%] min-w-24 flex-col gap-1 p-2',
         myPublicId === sender.publicId
           ? `right bg-sky-200 dark:bg-sky-800 ${!isRtl ? 'self-end' : 'self-start'}`
           : `left bg-zinc-200 dark:bg-zinc-800 ${isRtl ? 'self-end' : 'self-start'}`,
@@ -87,15 +87,13 @@ export default function Message({ id, content, isPending, isError, receipts, sen
       ref={messageRef}
     >
       <p
-        className={cn(
-          'overflow-hidden text-start text-sm wrap-break-word hyphens-auto whitespace-pre-line',
-          fonts[messageLocal],
-        )}
+        className={cn('min-w-0 text-start text-sm wrap-anywhere whitespace-pre-line', fonts[messageLocal])}
         dir={rtlLocales.has(messageLocal) ? 'rtl' : 'ltr'}
       >
         {content}
       </p>
-      <span className="flex items-center justify-center gap-1 self-end text-[10px] font-light text-zinc-700 dark:text-zinc-300">
+
+      <span className="flex items-center gap-1 self-end text-[10px] font-light text-zinc-700 dark:text-zinc-300">
         {convertToPrDigitsIfPr(formatTime(createdAt.toString()))}
         {icon}
       </span>

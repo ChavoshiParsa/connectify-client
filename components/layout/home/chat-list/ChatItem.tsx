@@ -77,18 +77,24 @@ export default function ChatItem({ recipient, lastMessage, dmKey, unreadCount }:
             </span>
           </div>
         </div>
-        <div className="flex w-full items-center justify-center gap-2">
-          <p
-            className={cn(
-              'line-clamp-1 w-full overflow-hidden text-start text-xs wrap-break-word',
-              isSomeoneTyping && !isActive ? 'text-sky-500 dark:text-sky-400' : 'text-zinc-500 dark:text-zinc-400',
-              fonts[messageLocal],
-            )}
-            dir={rtlLocales.has(messageLocal) ? 'rtl' : 'ltr'}
-          >
-            {isSomeoneTyping && !isActive ? t('typing') : lastMessage?.content}
-          </p>
-          <NewMessageBadge newMessageCount={unreadCount} />
+        <div className="flex w-full min-w-0 items-center justify-center gap-2">
+          {isSomeoneTyping && !isActive ? (
+            <p className="line-clamp-1 w-full min-w-0 overflow-hidden text-start text-xs break-all text-sky-500 dark:text-sky-400">
+              {t('typing')}
+            </p>
+          ) : (
+            <p
+              className={cn(
+                'line-clamp-1 w-full min-w-0 overflow-hidden text-start text-xs break-all text-zinc-500 dark:text-zinc-400',
+                fonts[messageLocal],
+              )}
+              dir={rtlLocales.has(messageLocal) ? 'rtl' : 'ltr'}
+            >
+              {lastMessage?.content}
+            </p>
+          )}
+
+          {!isActive && <NewMessageBadge newMessageCount={unreadCount} />}
         </div>
       </div>
     </Link>

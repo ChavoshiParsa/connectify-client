@@ -90,6 +90,7 @@
     "write_message": "Write a message...",
     "online": "Online",
     "select_chat": "Select a chat.",
-    "typing": "typing..."
+    "typing": "typing...",
+    "no_messages": "No messages here yet..."
   }
 }

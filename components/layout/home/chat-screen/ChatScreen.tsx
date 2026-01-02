@@ -140,6 +140,10 @@ export default function ChatScreen({ dmKey }: Props) {
             <Spinner />
           ) : isError ? (
             <div>{error?.message}</div>
+          ) : messages?.length === 0 ? (
+            <div className="animate-bounce rounded-full bg-zinc-200/50 px-3 py-1 text-center text-sm text-zinc-500 dark:bg-zinc-800/50">
+              {t('no_messages')}
+            </div>
           ) : (
             messages?.map((item) => {
               const uniqueKey = item.clientId || item.id || item.createdAt.toString();
@@ -152,7 +156,7 @@ export default function ChatScreen({ dmKey }: Props) {
 
       {!isEndInView && (
         <Button
-          className="absolute end-2 bottom-[72px] size-11 rounded-full bg-zinc-100 opacity-90 hover:bg-zinc-200 dark:bg-zinc-950 dark:hover:bg-zinc-900"
+          className="absolute end-2 bottom-18 size-11 rounded-full bg-zinc-100 opacity-90 hover:bg-zinc-200 dark:bg-zinc-950 dark:hover:bg-zinc-900"
           variant="outline"
           size="icon"
           onClick={() => scrollToBottom('smooth')}

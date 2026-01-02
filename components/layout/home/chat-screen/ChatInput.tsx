@@ -23,7 +23,8 @@ export default function ChatInput({ dmKey }: Props) {
   const textAreaRef = useRef<HTMLTextAreaElement>(null);
   const [message, setMessage] = useState('');
 
-  const typingTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const lastTypingEventRef = useRef<number>(0);
+  const TYPING_EVENT_INTERVAL = 800;
 
   const setTyping = useSetTyping();
   const sendMessage = useSendMessage(textAreaRef, setMessage);
@@ -32,26 +33,17 @@ export default function ChatInput({ dmKey }: Props) {
     const value = e.target.value;
     setMessage(value);
 
-    if (!value.trim()) {
+    if (!value.trim() || !recipientPublicId) {
       return;
     }
 
-    if (typingTimeoutRef.current) {
-      clearTimeout(typingTimeoutRef.current);
-    }
+    const now = Date.now();
 
-    typingTimeoutRef.current = setTimeout(() => {
+    if (now - lastTypingEventRef.current > TYPING_EVENT_INTERVAL) {
       setTyping.mutate({ recipientPublicId });
-    }, 700);
+      lastTypingEventRef.current = now;
+    }
   }
-
-  useEffect(() => {
-    return () => {
-      if (typingTimeoutRef.current) {
-        clearTimeout(typingTimeoutRef.current);
-      }
-    };
-  }, []);
 
   async function sendMessageHandler(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -77,7 +69,7 @@ export default function ChatInput({ dmKey }: Props) {
 
   return (
     <form
-      className="z-20 flex w-full gap-2 border-t border-zinc-200 bg-zinc-100 p-2 dark:border-zinc-800 dark:bg-zinc-950"
+      className="z-10 flex w-full gap-2 border-t border-zinc-200 bg-zinc-100 p-2 dark:border-zinc-800 dark:bg-zinc-950"
       onSubmit={sendMessageHandler}
     >
       <Textarea

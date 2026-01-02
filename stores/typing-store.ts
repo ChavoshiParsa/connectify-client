@@ -47,7 +47,7 @@ export const useTypingStore = create<State & Actions>((set) => ({
         typingUsers: state.typingUsers.filter((u) => !(u.dmKey === dmKey && u.publicId === publicId)),
       }));
       typingTimeouts.delete(key);
-    }, 1500);
+    }, 1000);
 
     typingTimeouts.set(key, timeoutId);
   },
