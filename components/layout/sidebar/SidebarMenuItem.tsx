@@ -1,3 +1,5 @@
+
+import { AppRoutes } from '@/.next/types/routes';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 import { cn } from '@/lib/utils';
 import { useSidebarStore } from '@/stores/ui-store';
@@ -5,7 +7,6 @@ import { LucideProps } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { AppRoutes } from '@/.next/dev/types/routes';
 
 type SidebarMenuItemProps = {
   title: string;

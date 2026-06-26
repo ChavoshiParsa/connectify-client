@@ -8,7 +8,7 @@ import { cn, getPartnerPublicKey } from '@/lib/utils';
 import { useAuthStore } from '@/stores/auth-store';
 import { SendHorizontal } from 'lucide-react';
 import { useTranslations } from 'next-intl';
-import { useEffect, useRef, useState } from 'react';
+import { useRef, useState } from 'react';
 
 type Props = { dmKey: string };
 

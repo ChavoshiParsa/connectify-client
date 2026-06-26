@@ -1,4 +1,5 @@
-import { AvatarColorType } from '@/types/avatar-colors';
+
+import { AvatarColorType } from "@/types/users";
 
 export const AvatarColor = {
   RED: 'RED',

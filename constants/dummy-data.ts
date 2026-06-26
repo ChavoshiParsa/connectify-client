@@ -1,4 +1,5 @@
-import { AvatarColorType } from '../types/avatar-colors';
+
+import { AvatarColorType } from '@/types/users';
 import { ChatItemType, MessageType } from '../types/chat';
 
 export const user = {

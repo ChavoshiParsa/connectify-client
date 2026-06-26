@@ -1,4 +1,4 @@
-import { AvatarColor } from '@/constants/avatar-colors';
+import { AvatarColor } from "@/constants/avatar-colors";
 
 export type AvatarColorType = keyof typeof AvatarColor;
 export type UserStatus = 'ONLINE' | 'OFFLINE';
