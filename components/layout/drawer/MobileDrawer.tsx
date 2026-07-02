@@ -20,7 +20,7 @@ export default function MobileDrawer() {
     <Drawer>
       <DrawerTrigger asChild>
         <Button
-          className="max-h-[50px] min-h-[50px] max-w-[50px] min-w-[50px] border border-zinc-200 bg-zinc-100 hover:bg-zinc-200 dark:border-zinc-800 dark:bg-zinc-950 dark:hover:bg-zinc-800"
+          className="max-h-12.5 min-h-12.5 max-w-12.5 min-w-12.5 border border-zinc-200 bg-zinc-100 hover:bg-zinc-200 dark:border-zinc-800 dark:bg-zinc-950 dark:hover:bg-zinc-800"
           variant="outline"
           size="icon"
         >

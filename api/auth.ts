@@ -1,4 +1,5 @@
 import { authApi } from '@/api/api-client';
+import { disconnectSocket } from '@/lib/socket';
 import { useAuthStore } from '@/stores/auth-store';
 import { LoginResponse, RefreshResponse, RegisterResponse, ValidateResponse } from '@/types/auth';
 
@@ -44,8 +45,13 @@ export const authService = {
 
   logout: async () => {
     const { reset } = useAuthStore.getState();
-    const { data } = await authApi.post<{ message: string }>('/auth/logout');
-    reset();
-    return data;
+
+    try {
+      const { data } = await authApi.post<{ message: string }>('/auth/logout');
+      return data;
+    } finally {
+      disconnectSocket();
+      reset();
+    }
   },
 };

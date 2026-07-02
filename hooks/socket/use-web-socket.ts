@@ -1,5 +1,5 @@
 import { MESSAGES } from '@/constants/query-keys';
-import { getSocket } from '@/lib/socket';
+import { connectSocket, disconnectSocket } from '@/lib/socket';
 import { makeDmKey } from '@/lib/utils';
 import { useAuthStore } from '@/stores/auth-store';
 import { useTypingStore } from '@/stores/typing-store';
@@ -16,61 +16,91 @@ import {
 import { useQueryClient } from '@tanstack/react-query';
 import { useEffect } from 'react';
 
+function isDev() {
+  return process.env.NODE_ENV !== 'production';
+}
+
 export function useWebSocketEvents() {
   const queryClient = useQueryClient();
-  const myPublicId = useAuthStore((state) => state.user?.publicId) as string;
+
+  const accessToken = useAuthStore((state) => state.accessToken);
+  const myPublicId = useAuthStore((state) => state.user?.publicId);
 
   useEffect(() => {
-    const socket = getSocket();
+    if (!accessToken || !myPublicId) {
+      disconnectSocket();
+      return;
+    }
 
-    const handleNewMessage = async (data: MessageNewData) => {
-      queryClient.invalidateQueries({ queryKey: [MESSAGES.MY_ROOMS] });
-      queryClient.invalidateQueries({ queryKey: [MESSAGES.ROOM_MESSAGES, data.dmKey] });
+    const socket = connectSocket(accessToken);
+
+    const invalidateRoom = (dmKey: string) => {
+      void queryClient.invalidateQueries({ queryKey: [MESSAGES.MY_ROOMS] });
+      void queryClient.invalidateQueries({ queryKey: [MESSAGES.ROOM_MESSAGES, dmKey] });
+      void queryClient.invalidateQueries({ queryKey: [MESSAGES.ROOM_DETAILS, dmKey] });
     };
 
-    const handleMessageEdited = async (data: MessageEditedData) => {
-      queryClient.invalidateQueries({ queryKey: [MESSAGES.MY_ROOMS] });
-      queryClient.invalidateQueries({ queryKey: [MESSAGES.ROOM_MESSAGES, data.dmKey] });
+    const handleNewMessage = (data: MessageNewData) => {
+      invalidateRoom(data.dmKey);
+    };
+
+    const handleMessageEdited = (data: MessageEditedData) => {
+      invalidateRoom(data.dmKey);
     };
 
     const handleMessageDeleted = (data: MessageDeletedData) => {
-      queryClient.invalidateQueries({ queryKey: [MESSAGES.MY_ROOMS] });
-      queryClient.invalidateQueries({ queryKey: [MESSAGES.ROOM_MESSAGES, data.dmKey] });
+      invalidateRoom(data.dmKey);
     };
 
     const handleMessagesSeen = (data: MessagesSeenData) => {
-      queryClient.invalidateQueries({ queryKey: [MESSAGES.MY_ROOMS] });
-      queryClient.invalidateQueries({ queryKey: [MESSAGES.ROOM_MESSAGES, data.dmKey] });
+      invalidateRoom(data.dmKey);
     };
 
     const handleMessageSeenAll = (data: MessageSeenAllData) => {
-      queryClient.invalidateQueries({ queryKey: [MESSAGES.MY_ROOMS] });
-      queryClient.invalidateQueries({ queryKey: [MESSAGES.ROOM_MESSAGES, data.dmKey] });
-    };
-
-    const handleSocketConnect = () => {
-      console.log('✅ socket connected:', socket?.id);
-    };
-
-    const handleSocketError = (err: Error) => {
-      console.error('❌ socket connect_error:', err.message, err);
+      invalidateRoom(data.dmKey);
     };
 
     const handleTypingStart = (data: TypingStartData) => {
-      const dmKey = makeDmKey(myPublicId, data.userPublicId);
+      if (data.userPublicId === myPublicId) {
+        return;
+      }
+
+      const dmKey = data.dmKey || makeDmKey(myPublicId, data.userPublicId);
       useTypingStore.getState().startTyping(dmKey, data.userPublicId);
     };
 
     const handleUserStatus = (data: UserStatusData) => {
+      if (data.publicId === myPublicId) {
+        return;
+      }
+
       const dmKey = makeDmKey(myPublicId, data.publicId);
-      queryClient.invalidateQueries({ queryKey: [MESSAGES.MY_ROOMS] });
-      queryClient.invalidateQueries({ queryKey: [MESSAGES.ROOM_DETAILS, dmKey] });
+
+      void queryClient.invalidateQueries({ queryKey: [MESSAGES.MY_ROOMS] });
+      void queryClient.invalidateQueries({ queryKey: [MESSAGES.ROOM_DETAILS, dmKey] });
     };
 
     const handleUserProfileUpdated = (data: UserProfileUpdatedData) => {
+      if (data.publicId === myPublicId) {
+        return;
+      }
+
       const dmKey = makeDmKey(myPublicId, data.publicId);
-      queryClient.invalidateQueries({ queryKey: [MESSAGES.MY_ROOMS] });
-      queryClient.invalidateQueries({ queryKey: [MESSAGES.ROOM_DETAILS, dmKey] });
+
+      void queryClient.invalidateQueries({ queryKey: [MESSAGES.MY_ROOMS] });
+      void queryClient.invalidateQueries({ queryKey: [MESSAGES.ROOM_DETAILS, dmKey] });
+    };
+
+    const handleSocketConnect = () => {
+      if (isDev()) {
+        console.info('socket connected:', socket.id);
+      }
+    };
+
+    const handleSocketError = (err: Error) => {
+      if (isDev()) {
+        console.error('socket connect_error:', err.message, err);
+      }
     };
 
     socket.on('message:new', handleNewMessage);
@@ -96,5 +126,5 @@ export function useWebSocketEvents() {
       socket.off('connect', handleSocketConnect);
       socket.off('connect_error', handleSocketError);
     };
-  }, [myPublicId, queryClient]);
+  }, [accessToken, myPublicId, queryClient]);
 }

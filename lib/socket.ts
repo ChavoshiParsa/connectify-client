@@ -1,21 +1,57 @@
-import { useAuthStore } from '@/stores/auth-store';
-import { ServerToClientEvents } from '@/types/socket-events';
-import { io, Socket } from 'socket.io-client';
+import type { ClientToServerEvents, ServerToClientEvents } from '@/types/socket-events';
+import { io, type Socket } from 'socket.io-client';
 
-let socket: Socket<ServerToClientEvents> | null = null;
-const SOCKET_URL = process.env.NEXT_PUBLIC_SOCKET_URL!;
+type AppSocket = Socket<ServerToClientEvents, ClientToServerEvents>;
 
-export function getSocket(): Socket<ServerToClientEvents> {
-  const { accessToken } = useAuthStore.getState();
+const SOCKET_URL = process.env.NEXT_PUBLIC_SOCKET_URL;
 
-  if (!socket) {
-    socket = io(SOCKET_URL, {
-      auth: {
-        token: accessToken,
-      },
-      transports: ['websocket', 'polling'],
-    });
+let socket: AppSocket | null = null;
+let activeToken: string | null = null;
+
+export function connectSocket(accessToken: string): AppSocket {
+  if (!SOCKET_URL) {
+    throw new Error('NEXT_PUBLIC_SOCKET_URL is not defined');
   }
 
+  if (socket && activeToken === accessToken) {
+    if (!socket.connected) {
+      socket.connect();
+    }
+
+    return socket;
+  }
+
+  disconnectSocket();
+
+  activeToken = accessToken;
+
+  socket = io(SOCKET_URL, {
+    auth: {
+      token: accessToken,
+    },
+    transports: ['websocket', 'polling'],
+    reconnection: true,
+    reconnectionAttempts: Infinity,
+    reconnectionDelay: 500,
+    reconnectionDelayMax: 5000,
+  });
+
   return socket;
+}
+
+export function getSocket(): AppSocket | null {
+  return socket;
+}
+
+export function disconnectSocket(): void {
+  if (!socket) {
+    activeToken = null;
+    return;
+  }
+
+  socket.removeAllListeners();
+  socket.disconnect();
+
+  socket = null;
+  activeToken = null;
 }

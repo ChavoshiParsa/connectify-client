@@ -4,7 +4,7 @@ import { useDebouncedSeenMessages } from '@/hooks/data/use-debounced-seen-messag
 import { useRoomMessages } from '@/hooks/data/use-messages';
 import { ChevronDown } from 'lucide-react';
 import { useTranslations } from 'next-intl';
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import ChatHeader from './ChatHeader';
 import ChatInput from './ChatInput';
 import Message from './Message';
@@ -30,12 +30,17 @@ export default function ChatScreen({ dmKey }: Props) {
   }, []);
 
   const { data, isPending, isError, error, fetchNextPage, hasNextPage, isFetchingNextPage } = useRoomMessages(
-    dmKey as string,
+    dmKey,
+    Boolean(dmKey),
   );
 
-  const messages = data?.pages
-    .flatMap((page) => page.messages)
-    .sort((a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime());
+  const messages = useMemo(() => {
+    return (
+      data?.pages
+        .flatMap((page) => page.messages)
+        .sort((a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()) ?? []
+    );
+  }, [data]);
 
   const { markAsSeen, cleanup } = useDebouncedSeenMessages(dmKey || '', 500);
 
@@ -77,7 +82,7 @@ export default function ChatScreen({ dmKey }: Props) {
         }
       },
       {
-        root: containerRef.current,
+        root: chatRef.current,
         threshold: 1.0,
       },
     );
@@ -88,7 +93,7 @@ export default function ChatScreen({ dmKey }: Props) {
     return () => {
       if (current) observer.unobserve(current);
     };
-  }, [containerRef]);
+  }, []);
 
   useEffect(() => {
     const observer = new IntersectionObserver(
@@ -100,7 +105,7 @@ export default function ChatScreen({ dmKey }: Props) {
           fetchNextPage();
         }
       },
-      { root: containerRef.current, threshold: 1.0 },
+      { root: chatRef.current, threshold: 1.0 },
     );
 
     const current = topRef.current;
@@ -140,12 +145,12 @@ export default function ChatScreen({ dmKey }: Props) {
             <Spinner />
           ) : isError ? (
             <div>{error?.message}</div>
-          ) : messages?.length === 0 ? (
+          ) : messages.length === 0 ? (
             <div className="animate-bounce rounded-full bg-zinc-200/50 px-3 py-1 text-center text-sm text-zinc-500 dark:bg-zinc-800/50">
               {t('no_messages')}
             </div>
           ) : (
-            messages?.map((item) => {
+            messages.map((item) => {
               const uniqueKey = item.clientId || item.id || item.createdAt.toString();
               return <Message key={uniqueKey} dmKey={dmKey} onVisible={markAsSeen} {...item} />;
             })
@@ -156,7 +161,7 @@ export default function ChatScreen({ dmKey }: Props) {
 
       {!isEndInView && (
         <Button
-          className="absolute end-2 bottom-18 size-11 rounded-full bg-zinc-100 opacity-90 hover:bg-zinc-200 dark:bg-zinc-950 dark:hover:bg-zinc-900"
+          className="absolute inset-e-2 bottom-18 size-11 rounded-full bg-zinc-100 opacity-90 hover:bg-zinc-200 dark:bg-zinc-950 dark:hover:bg-zinc-900"
           variant="outline"
           size="icon"
           onClick={() => scrollToBottom('smooth')}

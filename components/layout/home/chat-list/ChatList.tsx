@@ -9,7 +9,7 @@ import { useMyRooms } from '@/hooks/data/use-messages';
 import { useSearchUsers } from '@/hooks/data/use-users';
 import { Search } from 'lucide-react';
 import { useTranslations } from 'next-intl';
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import ChatItem from './ChatItem';
 import SearchResultItem from './SearchResultItem';
 
@@ -30,6 +30,26 @@ export default function ChatList() {
   const search = useSearchUsers(searchInputValue, isSearchMode);
 
   const users = search?.data || [];
+
+  const filteredRooms = useMemo(() => {
+    const roomList = rooms.data ?? [];
+
+    return roomList
+      .filter((item) => {
+        if (searchInputValue === '') return true;
+
+        const fullName = `${item.recipient.firstName} ${item.recipient.lastName ?? ''}`.toLocaleLowerCase();
+        const lastMessage = item.lastMessage?.content?.toLocaleLowerCase() ?? '';
+
+        return fullName.includes(searchValue) || lastMessage.includes(searchValue);
+      })
+      .sort((a, b) => {
+        const aTime = new Date(a.lastMessage?.createdAt ?? a.updatedAt).getTime();
+        const bTime = new Date(b.lastMessage?.createdAt ?? b.updatedAt).getTime();
+
+        return bTime - aTime;
+      });
+  }, [rooms.data, searchInputValue, searchValue]);
 
   return (
     <div className="flex h-full w-full flex-col items-center justify-start gap-2 bg-zinc-100 pt-3 dark:bg-zinc-950">
@@ -63,25 +83,7 @@ export default function ChatList() {
             ) : rooms.isError ? (
               <div>{rooms.error?.message}</div>
             ) : (
-              rooms.data
-                ?.filter((item) => {
-                  if (searchInputValue === '') return true;
-                  if (
-                    (item.recipient.firstName + ' ' + item.recipient.lastName)
-                      .toLocaleLowerCase()
-                      .includes(searchValue) ||
-                    item.lastMessage?.content.toLocaleLowerCase().includes(searchValue)
-                  ) {
-                    return true;
-                  }
-                  return false;
-                })
-                .sort(
-                  (a, b) =>
-                    new Date(b.lastMessage?.createdAt as Date).getTime() -
-                    new Date(a.lastMessage?.createdAt as Date).getTime(),
-                )
-                .map((item) => <ChatItem key={item.dmKey} {...item} />)
+              filteredRooms.map((item) => <ChatItem key={item.dmKey} {...item} />)
             )}
           </>
         )}

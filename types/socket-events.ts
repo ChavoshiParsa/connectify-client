@@ -62,3 +62,7 @@ export type ServerToClientEvents = {
   'user:status': (payload: UserStatusData) => void;
   'user:profile-updated': (payload: UserProfileUpdatedData) => void;
 };
+
+export type ClientToServerEvents = {
+  ping: () => void;
+};

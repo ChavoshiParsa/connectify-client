@@ -8,8 +8,8 @@ const nextConfig: NextConfig = {
   },
   reactCompiler: true,
   typedRoutes: true,
-  // reactStrictMode: false,
 };
 
 const withNextIntl = createNextIntlPlugin();
+
 export default withNextIntl(nextConfig);
