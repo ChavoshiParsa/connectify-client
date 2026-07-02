@@ -87,7 +87,8 @@
     "no_results": "No results found.",
     "online": "Online",
     "last_seen_at": "Last seen at",
-    "typing": "typing..."
+    "typing": "typing...",
+    "photo": "Photo"
   },
   "Date": {
     "Saturday": "Saturday",
@@ -105,6 +106,14 @@
     "online": "Online",
     "select_chat": "Select a chat.",
     "typing": "typing...",
-    "no_messages": "No messages here yet..."
+    "no_messages": "No messages here yet...",
+    "attach_image": "Attach image",
+    "write_caption": "Add a caption...",
+    "image_preview": "Selected image preview",
+    "remove_image": "Remove image",
+    "image_invalid_type": "Choose a PNG, JPEG, or WebP image.",
+    "image_too_large": "The original image must be smaller than 15 MB.",
+    "image_prepare_failed": "The image could not be prepared.",
+    "image_send_failed": "The image could not be sent."
   }
 }

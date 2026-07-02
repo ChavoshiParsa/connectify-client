@@ -59,6 +59,12 @@ export function useSendMessage(
   });
 }
 
+export function useSendImage() {
+  return useMutation<SendMessageResponse, unknown, { recipientPublicId: string; image: File; content: string }>({
+    mutationFn: ({ recipientPublicId, image, content }) => messagesService.sendImage(recipientPublicId, image, content),
+  });
+}
+
 export function useSetTyping() {
   return useMutation<SetTypingResponse, unknown, { recipientPublicId: string }>({
     mutationFn: ({ recipientPublicId }) => messagesService.setTyping(recipientPublicId),

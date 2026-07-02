@@ -8,6 +8,7 @@ import { RoomMessageItem } from '@/types/messages';
 import { Check, CheckCheck, CircleAlert, Clock } from 'lucide-react';
 import { motion, Variants } from 'motion/react';
 import { useEffect, useRef } from 'react';
+import MessageImage from './MessageImage';
 
 type Props = RoomMessageItem & {
   dmKey: string;
@@ -27,12 +28,23 @@ const bubbleVariants: Variants = {
   },
 };
 
-export default function Message({ id, content, isPending, isError, receipts, sender, createdAt, onVisible }: Props) {
+export default function Message({
+  id,
+  content,
+  attachments,
+  isPending,
+  isError,
+  receipts,
+  sender,
+  createdAt,
+  onVisible,
+}: Props) {
   const { detectLocale, convertToPrDigitsIfPr, formatTime } = useLocaleUtils();
   const myPublicId = useAuthStore((state) => state.user?.publicId);
 
   const { isRtl } = useApp();
   const messageLocal = detectLocale(content);
+  const imageAttachments = attachments?.filter((attachment) => attachment.type === 'IMAGE') ?? [];
 
   let icon;
   if (myPublicId !== sender.publicId) icon = null;
@@ -86,12 +98,18 @@ export default function Message({ id, content, isPending, isError, receipts, sen
       animate="visible"
       ref={messageRef}
     >
-      <p
-        className={cn('min-w-0 text-start text-sm wrap-anywhere whitespace-pre-line', fonts[messageLocal])}
-        dir={rtlLocales.has(messageLocal) ? 'rtl' : 'ltr'}
-      >
-        {content}
-      </p>
+      {imageAttachments.map((attachment) => (
+        <MessageImage key={attachment.fileId} messageId={id} attachment={attachment} />
+      ))}
+
+      {content && (
+        <p
+          className={cn('min-w-0 text-start text-sm wrap-anywhere whitespace-pre-line', fonts[messageLocal])}
+          dir={rtlLocales.has(messageLocal) ? 'rtl' : 'ltr'}
+        >
+          {content}
+        </p>
+      )}
 
       <span className="flex items-center gap-1 self-end text-[10px] font-light text-zinc-700 dark:text-zinc-300">
         {convertToPrDigitsIfPr(formatTime(createdAt.toString()))}

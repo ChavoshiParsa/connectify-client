@@ -9,18 +9,21 @@ import { cn } from '@/lib/utils';
 import { useAuthStore } from '@/stores/auth-store';
 import { useTypingStore } from '@/stores/typing-store';
 import { DmRoomSummary } from '@/types/messages';
-import { Check, CheckCheck, CircleAlert, Clock, Pencil } from 'lucide-react';
+import { Check, CheckCheck, CircleAlert, Clock, ImageIcon, Pencil } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 
 export default function ChatItem({ recipient, lastMessage, dmKey, unreadCount }: DmRoomSummary) {
   const { detectLocale, convertToPrDigitsIfPr, formatChatTime } = useLocaleUtils();
+  const t = useTranslations('ChatList');
 
   const avatarFallback =
     `${recipient?.firstName?.charAt(0) ?? ''}‌${recipient?.lastName?.charAt(0) ?? ''}`.toUpperCase();
   const nameLocal = detectLocale(avatarFallback);
-  const messageLocal = detectLocale(lastMessage?.content ?? '');
+  const isImageMessage = lastMessage?.attachments?.some((attachment) => attachment.type === 'IMAGE') ?? false;
+  const messagePreview = lastMessage?.content || (isImageMessage ? t('photo') : '');
+  const messageLocal = detectLocale(messagePreview);
   const myPublicId = useAuthStore((state) => state.user?.publicId);
 
   const isMyMessage = myPublicId === lastMessage?.sender.publicId;
@@ -36,7 +39,6 @@ export default function ChatItem({ recipient, lastMessage, dmKey, unreadCount }:
   const pathname = usePathname();
   const isActive = pathname.endsWith(dmKey);
 
-  const t = useTranslations('ChatList');
   const isSomeoneTyping = useTypingStore((state) => state.typingUsers.some((u) => u.dmKey === dmKey));
 
   return (
@@ -90,7 +92,8 @@ export default function ChatItem({ recipient, lastMessage, dmKey, unreadCount }:
               )}
               dir={rtlLocales.has(messageLocal) ? 'rtl' : 'ltr'}
             >
-              {lastMessage?.content}
+              {isImageMessage && <ImageIcon className="me-1 inline size-3" />}
+              {messagePreview}
             </p>
           )}
 

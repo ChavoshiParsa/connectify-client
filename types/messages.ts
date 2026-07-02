@@ -1,10 +1,21 @@
 import { SafeUser } from './users';
 
+export type ImageMessageAttachment = {
+  type: 'IMAGE';
+  fileId: string;
+  fileName: string;
+  mimeType: string;
+  size: number;
+};
+
+export type MessageAttachment = ImageMessageAttachment;
+
 export type DmLastMessage = {
   clientId?: string; // client added
   id: string;
   createdAt: Date;
   content: string;
+  attachments: MessageAttachment[] | null;
   editedAt: Date | null;
   sender: {
     firstName: string;
@@ -38,6 +49,7 @@ export type RoomMessageItem = {
   id: string;
   createdAt: Date;
   content: string;
+  attachments: MessageAttachment[] | null;
   editedAt: Date | null;
   sender: SafeUser;
   receipts: {
@@ -64,6 +76,7 @@ export type MessageDetailsResponse = RoomMessageItem & {
 export type SendMessageResponse = {
   messageId: string;
   content: string;
+  attachments: MessageAttachment[] | null;
   createdAt: Date;
   dmKey: string;
 };

@@ -40,6 +40,23 @@ export const messagesService = {
     return data;
   },
 
+  sendImage: async (recipientPublicId: string, image: File, content: string) => {
+    const formData = new FormData();
+    formData.append('content', content);
+    formData.append('image', image);
+
+    const { data } = await api.post<SendMessageResponse>(`dm/send-image/${recipientPublicId}`, formData);
+    return data;
+  },
+
+  getMessageImage: async (messageId: string, fileId: string, signal?: AbortSignal) => {
+    const { data } = await api.get<Blob>(`dm/message-image/${messageId}/${fileId}`, {
+      responseType: 'blob',
+      signal,
+    });
+    return data;
+  },
+
   setTyping: async (recipientPublicId: string) => {
     const { data } = await api.post<SetTypingResponse>(`dm/set-typing/${recipientPublicId}`);
     return data;
