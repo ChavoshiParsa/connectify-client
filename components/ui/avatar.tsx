@@ -4,6 +4,7 @@ import { Avatar as AvatarPrimitive } from 'radix-ui';
 import * as React from 'react';
 
 import { cn } from '@/lib/utils';
+import { resolveAvatarUrl } from '@/lib/avatar-url';
 
 function Avatar({
   className,
@@ -26,8 +27,14 @@ function Avatar({
 }
 
 function AvatarImage({ className, ...props }: React.ComponentProps<typeof AvatarPrimitive.Image>) {
+  const src = typeof props.src === 'string' ? resolveAvatarUrl(props.src) : props.src;
   return (
-    <AvatarPrimitive.Image data-slot="avatar-image" className={cn('aspect-square size-full', className)} {...props} />
+    <AvatarPrimitive.Image
+      data-slot="avatar-image"
+      className={cn('aspect-square size-full', className)}
+      {...props}
+      src={src}
+    />
   );
 }
 

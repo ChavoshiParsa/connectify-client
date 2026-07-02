@@ -7,6 +7,18 @@ export async function fileToImageBitmap(file: File): Promise<ImageBitmap | HTMLI
   return img;
 }
 
+export function dataUrlToFile(dataUrl: string, filename: string): File {
+  const [header, encoded] = dataUrl.split(',');
+  const contentType = /^data:([^;]+);base64$/.exec(header)?.[1];
+  if (!contentType || !encoded) throw new Error('Invalid image data URL');
+
+  const binary = atob(encoded);
+  const bytes = new Uint8Array(binary.length);
+  for (let index = 0; index < binary.length; index += 1) bytes[index] = binary.charCodeAt(index);
+
+  return new File([bytes], filename, { type: contentType });
+}
+
 export function fileToDataURL(file: File): Promise<string> {
   return new Promise((resolve, reject) => {
     const reader = new FileReader();

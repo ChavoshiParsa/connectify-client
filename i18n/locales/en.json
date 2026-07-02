@@ -56,6 +56,20 @@
     "error_image_too_large": "Image is too large.",
     "error_invalid_image_type": "Invalid image file."
   },
+  "ProfilePage": {
+    "title": "Profile",
+    "description": "Manage how your profile appears to other people.",
+    "avatar_alt": "Profile avatar",
+    "photo_help": "PNG, JPEG, or WebP. Images are resized before upload.",
+    "choose": "Choose photo",
+    "save": "Save avatar",
+    "saving": "Saving...",
+    "saved": "Avatar updated.",
+    "save_failed": "Avatar could not be updated.",
+    "compress_failed": "Image could not be prepared.",
+    "invalid_type": "Choose a valid image file.",
+    "too_large": "The original image must be smaller than 5 MB."
+  },
   "Sidebar": {
     "home": "Home",
     "profile": "Profile",

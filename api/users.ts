@@ -19,4 +19,13 @@ export const usersService = {
     const { data } = await api.get<UsersSearchResponse>('/users/search', { params: { q } });
     return data;
   },
+
+  updateAvatar: async (avatar: File) => {
+    const formData = new FormData();
+    formData.append('avatar', avatar);
+
+    const { data } = await api.patch<{ result: User }>('/profile/update-avatar', formData);
+    useAuthStore.getState().setAuth({ user: data.result });
+    return data.result;
+  },
 };

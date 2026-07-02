@@ -1,6 +1,6 @@
 import { usersService } from '@/api/users';
 import { USERS } from '@/constants/query-keys';
-import { useQuery } from '@tanstack/react-query';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 
 export function useMe() {
   return useQuery({
@@ -21,5 +21,16 @@ export function useSearchUsers(q: string, enabled: boolean = true) {
     queryKey: [USERS.SEARCH_USERS, q],
     queryFn: () => usersService.searchUsers(q),
     enabled: !!q && enabled,
+  });
+}
+
+export function useUpdateAvatar() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (avatar: File) => usersService.updateAvatar(avatar),
+    onSuccess: (user) => {
+      queryClient.setQueryData([USERS.ME], { data: user, statusText: 'OK' });
+    },
   });
 }
