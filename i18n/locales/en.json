@@ -114,6 +114,9 @@
     "image_invalid_type": "Choose a PNG, JPEG, or WebP image.",
     "image_too_large": "The original image must be smaller than 15 MB.",
     "image_prepare_failed": "The image could not be prepared.",
-    "image_send_failed": "The image could not be sent."
+    "image_send_failed": "The image could not be sent.",
+    "open_image": "Open image full screen",
+    "download_image": "Download",
+    "close_image": "Close image"
   }
 }
