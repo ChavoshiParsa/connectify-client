@@ -175,6 +175,24 @@
     "file_send_failed": "The attachment could not be sent.",
     "video_invalid_type": "Choose an MP4, WebM, or MOV video.",
     "new_messages": "New messages",
-    "scroll_to_latest": "Scroll to latest message"
+    "scroll_to_latest": "Scroll to latest message",
+    "copy_message": "Copy",
+    "message_copied": "Message copied.",
+    "copy_message_failed": "Message could not be copied.",
+    "edit_message": "Edit",
+    "edit_message_title": "Edit message",
+    "edit_message_description": "Update your message and save the changes.",
+    "edited": "edited",
+    "save_edit": "Save",
+    "saving_edit": "Saving...",
+    "cancel_edit": "Cancel",
+    "message_edited": "Message updated.",
+    "edit_message_failed": "Message could not be updated.",
+    "delete_message": "Delete",
+    "delete_message_title": "Delete this message?",
+    "delete_message_description": "This message will be deleted for everyone. This action cannot be undone.",
+    "deleting_message": "Deleting...",
+    "message_deleted": "Message deleted.",
+    "delete_message_failed": "Message could not be deleted."
   }
 }

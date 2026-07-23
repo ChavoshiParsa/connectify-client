@@ -8,7 +8,7 @@ import {
   SendMessageResponse,
   SetTypingResponse,
 } from '@/types/messages';
-import { useInfiniteQuery, useMutation, useQuery } from '@tanstack/react-query';
+import { useInfiniteQuery, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 
 export function useMyRooms() {
   return useQuery({
@@ -110,13 +110,27 @@ export function useSeenAllMessages() {
 }
 
 export function useEditMessage() {
+  const queryClient = useQueryClient();
+
   return useMutation<EditMessageResponse, unknown, { messageId: string; content: string; dmKey: string }>({
     mutationFn: ({ messageId, content }) => messagesService.editMessage(messageId, content),
+    onSuccess: (_data, { dmKey }) => {
+      void queryClient.invalidateQueries({ queryKey: [MESSAGES.ROOM_MESSAGES, dmKey] });
+      void queryClient.invalidateQueries({ queryKey: [MESSAGES.ROOM_DETAILS, dmKey] });
+      void queryClient.invalidateQueries({ queryKey: [MESSAGES.MY_ROOMS] });
+    },
   });
 }
 
 export function useDeleteMessage() {
+  const queryClient = useQueryClient();
+
   return useMutation<DeleteMessageResponse, unknown, { messageId: string; dmKey: string }>({
     mutationFn: ({ messageId }) => messagesService.deleteMessage(messageId),
+    onSuccess: (_data, { dmKey }) => {
+      void queryClient.invalidateQueries({ queryKey: [MESSAGES.ROOM_MESSAGES, dmKey] });
+      void queryClient.invalidateQueries({ queryKey: [MESSAGES.ROOM_DETAILS, dmKey] });
+      void queryClient.invalidateQueries({ queryKey: [MESSAGES.MY_ROOMS] });
+    },
   });
 }

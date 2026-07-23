@@ -175,6 +175,24 @@
     "file_send_failed": "پیوست ارسال نشد.",
     "video_invalid_type": "یک ویدیوی MP4، WebM یا MOV انتخاب کنید.",
     "new_messages": "پیام‌های جدید",
-    "scroll_to_latest": "رفتن به آخرین پیام"
+    "scroll_to_latest": "رفتن به آخرین پیام",
+    "copy_message": "کپی",
+    "message_copied": "پیام کپی شد.",
+    "copy_message_failed": "پیام کپی نشد.",
+    "edit_message": "ویرایش",
+    "edit_message_title": "ویرایش پیام",
+    "edit_message_description": "متن پیام را تغییر دهید و ذخیره کنید.",
+    "edited": "ویرایش‌شده",
+    "save_edit": "ذخیره",
+    "saving_edit": "در حال ذخیره...",
+    "cancel_edit": "لغو",
+    "message_edited": "پیام به‌روزرسانی شد.",
+    "edit_message_failed": "پیام به‌روزرسانی نشد.",
+    "delete_message": "حذف",
+    "delete_message_title": "این پیام حذف شود؟",
+    "delete_message_description": "این پیام برای همه حذف می‌شود و قابل بازگردانی نیست.",
+    "deleting_message": "در حال حذف...",
+    "message_deleted": "پیام حذف شد.",
+    "delete_message_failed": "پیام حذف نشد."
   }
 }
