@@ -48,8 +48,13 @@ export function useSendMessage(
   textAreaRef: React.RefObject<HTMLTextAreaElement | null>,
   setMessage: React.Dispatch<React.SetStateAction<string>>,
 ) {
-  return useMutation<SendMessageResponse, unknown, { recipientPublicId: string; content: string }>({
-    mutationFn: ({ recipientPublicId, content }) => messagesService.sendMessage(recipientPublicId, content),
+  return useMutation<
+    SendMessageResponse,
+    unknown,
+    { recipientPublicId: string; content: string; replyToId?: string }
+  >({
+    mutationFn: ({ recipientPublicId, content, replyToId }) =>
+      messagesService.sendMessage(recipientPublicId, content, replyToId),
     onSuccess: () => {
       setMessage('');
       setTimeout(() => {
@@ -60,28 +65,42 @@ export function useSendMessage(
 }
 
 export function useSendImage() {
-  return useMutation<SendMessageResponse, unknown, { recipientPublicId: string; image: File; content: string }>({
-    mutationFn: ({ recipientPublicId, image, content }) => messagesService.sendImage(recipientPublicId, image, content),
+  return useMutation<
+    SendMessageResponse,
+    unknown,
+    { recipientPublicId: string; image: File; content: string; replyToId?: string }
+  >({
+    mutationFn: ({ recipientPublicId, image, content, replyToId }) =>
+      messagesService.sendImage(recipientPublicId, image, content, replyToId),
   });
 }
 
 export function useSendVoice() {
-  return useMutation<SendMessageResponse, unknown, { recipientPublicId: string; voice: File; durationMs: number }>({
-    mutationFn: ({ recipientPublicId, voice, durationMs }) =>
-      messagesService.sendVoice(recipientPublicId, voice, durationMs),
+  return useMutation<
+    SendMessageResponse,
+    unknown,
+    { recipientPublicId: string; voice: File; durationMs: number; replyToId?: string }
+  >({
+    mutationFn: ({ recipientPublicId, voice, durationMs, replyToId }) =>
+      messagesService.sendVoice(recipientPublicId, voice, durationMs, replyToId),
   });
 }
 
 export function useSendVideo() {
-  return useMutation<SendMessageResponse, unknown, { recipientPublicId: string; video: File; durationMs?: number }>({
-    mutationFn: ({ recipientPublicId, video, durationMs }) =>
-      messagesService.sendVideo(recipientPublicId, video, durationMs),
+  return useMutation<
+    SendMessageResponse,
+    unknown,
+    { recipientPublicId: string; video: File; durationMs?: number; replyToId?: string }
+  >({
+    mutationFn: ({ recipientPublicId, video, durationMs, replyToId }) =>
+      messagesService.sendVideo(recipientPublicId, video, durationMs, replyToId),
   });
 }
 
 export function useSendFile() {
-  return useMutation<SendMessageResponse, unknown, { recipientPublicId: string; file: File }>({
-    mutationFn: ({ recipientPublicId, file }) => messagesService.sendFile(recipientPublicId, file),
+  return useMutation<SendMessageResponse, unknown, { recipientPublicId: string; file: File; replyToId?: string }>({
+    mutationFn: ({ recipientPublicId, file, replyToId }) =>
+      messagesService.sendFile(recipientPublicId, file, replyToId),
   });
 }
 

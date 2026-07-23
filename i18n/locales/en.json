@@ -193,6 +193,16 @@
     "delete_message_description": "This message will be deleted for everyone. This action cannot be undone.",
     "deleting_message": "Deleting...",
     "message_deleted": "Message deleted.",
-    "delete_message_failed": "Message could not be deleted."
+    "delete_message_failed": "Message could not be deleted.",
+    "reply_message": "Reply",
+    "cancel_reply": "Cancel reply",
+    "go_to_replied_message": "Go to replied message",
+    "original_message_not_found": "The original message could not be loaded.",
+    "deleted_message": "Deleted message",
+    "message": "Message",
+    "photo": "Photo",
+    "voice_message": "Voice message",
+    "video": "Video",
+    "file": "File"
   }
 }

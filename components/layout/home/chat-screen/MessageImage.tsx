@@ -9,9 +9,10 @@ import { useEffect, useState } from 'react';
 type Props = {
   messageId: string;
   attachment: ImageMessageAttachment;
+  onLoad?: () => void;
 };
 
-export default function MessageImage({ messageId, attachment }: Props) {
+export default function MessageImage({ messageId, attachment, onLoad }: Props) {
   const t = useTranslations('ChatScreen');
   const [source, setSource] = useState<string>();
   const [hasError, setHasError] = useState(false);
@@ -73,7 +74,7 @@ export default function MessageImage({ messageId, attachment }: Props) {
           className="max-h-96 w-full rounded-xl object-contain"
           src={source}
           alt={attachment.fileName}
-          loading="lazy"
+          onLoad={onLoad}
         />
         <span className="absolute inset-0 grid place-items-center bg-black/0 text-white opacity-0 transition group-hover/image:bg-black/25 group-hover/image:opacity-100 group-focus-visible/image:bg-black/25 group-focus-visible/image:opacity-100">
           <Expand className="size-8 drop-shadow" />

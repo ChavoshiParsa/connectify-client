@@ -15,14 +15,20 @@ import {
 import { compressImageToTarget, dataUrlToFile } from '@/lib/image-compress';
 import { cn, getPartnerPublicKey } from '@/lib/utils';
 import { useAuthStore } from '@/stores/auth-store';
+import { RoomMessageItem } from '@/types/messages';
 import { FileText, Mic, Paperclip, SendHorizontal, Trash2, X } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { useEffect, useRef, useState } from 'react';
 import { toast } from 'sonner';
+import MessageReplyPreview from './MessageReplyPreview';
 
-type Props = { dmKey: string };
+type Props = {
+  dmKey: string;
+  replyingTo?: RoomMessageItem;
+  onCancelReply: () => void;
+};
 
-export default function ChatInput({ dmKey }: Props) {
+export default function ChatInput({ dmKey, replyingTo, onCancelReply }: Props) {
   const t = useTranslations('ChatScreen');
   const { locale, isRtl } = useApp();
 
@@ -53,6 +59,7 @@ export default function ChatInput({ dmKey }: Props) {
   const isSending =
     sendMessage.isPending || sendImage.isPending || sendVoice.isPending || sendVideo.isPending || sendFile.isPending;
   const hasAttachment = Boolean(selectedImage || selectedVideo || selectedFile);
+  const replyToId = replyingTo?.id;
 
   useEffect(() => {
     const preview = selectedVideo?.preview;
@@ -60,6 +67,26 @@ export default function ChatInput({ dmKey }: Props) {
       if (preview) URL.revokeObjectURL(preview);
     };
   }, [selectedVideo?.preview]);
+
+  useEffect(() => {
+    if (!replyingTo) return;
+
+    let focusFrame: number | undefined;
+    const menuCloseFrame = requestAnimationFrame(() => {
+      focusFrame = requestAnimationFrame(() => {
+        const input = textAreaRef.current;
+        if (!input || input.disabled) return;
+
+        input.focus({ preventScroll: true });
+        input.setSelectionRange(input.value.length, input.value.length);
+      });
+    });
+
+    return () => {
+      cancelAnimationFrame(menuCloseFrame);
+      if (focusFrame !== undefined) cancelAnimationFrame(focusFrame);
+    };
+  }, [replyingTo]);
 
   function textareaChangeHandler(e: React.ChangeEvent<HTMLTextAreaElement>) {
     const value = e.target.value;
@@ -84,9 +111,12 @@ export default function ChatInput({ dmKey }: Props) {
 
     if (selectedVideo) {
       sendVideo.mutate(
-        { recipientPublicId, video: selectedVideo.file, durationMs: selectedVideo.durationMs },
+        { recipientPublicId, video: selectedVideo.file, durationMs: selectedVideo.durationMs, replyToId },
         {
-          onSuccess: clearSelectedAttachment,
+          onSuccess: () => {
+            clearSelectedAttachment();
+            onCancelReply();
+          },
           onError: () => toast.error(t('file_send_failed')),
         },
       );
@@ -94,9 +124,12 @@ export default function ChatInput({ dmKey }: Props) {
     }
     if (selectedFile) {
       sendFile.mutate(
-        { recipientPublicId, file: selectedFile },
+        { recipientPublicId, file: selectedFile, replyToId },
         {
-          onSuccess: clearSelectedAttachment,
+          onSuccess: () => {
+            clearSelectedAttachment();
+            onCancelReply();
+          },
           onError: () => toast.error(t('file_send_failed')),
         },
       );
@@ -105,11 +138,12 @@ export default function ChatInput({ dmKey }: Props) {
 
     if (selectedImage) {
       sendImage.mutate(
-        { recipientPublicId, image: selectedImage, content: trimmed },
+        { recipientPublicId, image: selectedImage, content: trimmed, replyToId },
         {
           onSuccess: () => {
             setMessage('');
             clearSelectedImage();
+            onCancelReply();
             textAreaRef.current?.focus();
           },
           onError: () => toast.error(t('image_send_failed')),
@@ -118,7 +152,10 @@ export default function ChatInput({ dmKey }: Props) {
       return;
     }
 
-    sendMessage.mutate({ recipientPublicId, content: trimmed });
+    sendMessage.mutate(
+      { recipientPublicId, content: trimmed, replyToId },
+      { onSuccess: onCancelReply },
+    );
   }
 
   function keyDownHandler(e: React.KeyboardEvent<HTMLTextAreaElement>) {
@@ -221,8 +258,12 @@ export default function ChatInput({ dmKey }: Props) {
           recipientPublicId,
           voice: recording.file,
           durationMs: recording.durationMs,
+          replyToId,
         },
-        { onError: () => toast.error(t('voice_send_failed')) },
+        {
+          onSuccess: onCancelReply,
+          onError: () => toast.error(t('voice_send_failed')),
+        },
       );
     } catch {
       toast.error(t('voice_record_failed'));
@@ -239,6 +280,22 @@ export default function ChatInput({ dmKey }: Props) {
       className="z-10 flex w-full flex-col gap-2 border-t border-zinc-200 bg-zinc-100 p-2 dark:border-zinc-800 dark:bg-zinc-950"
       onSubmit={sendMessageHandler}
     >
+      {replyingTo && (
+        <div className="bg-muted/60 flex min-w-0 items-center gap-2 rounded-lg border p-2">
+          <MessageReplyPreview message={replyingTo} className="flex-1" />
+          <Button
+            type="button"
+            variant="ghost"
+            size="icon-sm"
+            className="shrink-0"
+            onClick={onCancelReply}
+            aria-label={t('cancel_reply')}
+          >
+            <X />
+          </Button>
+        </div>
+      )}
+
       {imagePreview && (
         <div className="relative w-fit rounded-xl border bg-zinc-200 p-1 dark:bg-zinc-900">
           {/* eslint-disable-next-line @next/next/no-img-element */}

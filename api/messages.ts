@@ -35,14 +35,18 @@ export const messagesService = {
     return data;
   },
 
-  sendMessage: async (recipientPublicId: string, content: string) => {
-    const { data } = await api.post<SendMessageResponse>(`dm/send-message/${recipientPublicId}`, { content });
+  sendMessage: async (recipientPublicId: string, content: string, replyToId?: string) => {
+    const { data } = await api.post<SendMessageResponse>(`dm/send-message/${recipientPublicId}`, {
+      content,
+      replyToId,
+    });
     return data;
   },
 
-  sendImage: async (recipientPublicId: string, image: File, content: string) => {
+  sendImage: async (recipientPublicId: string, image: File, content: string, replyToId?: string) => {
     const formData = new FormData();
     formData.append('content', content);
+    if (replyToId) formData.append('replyToId', replyToId);
     formData.append('image', image);
 
     const { data } = await api.post<SendMessageResponse>(`dm/send-image/${recipientPublicId}`, formData);
@@ -57,25 +61,28 @@ export const messagesService = {
     return data;
   },
 
-  sendVoice: async (recipientPublicId: string, voice: File, durationMs: number) => {
+  sendVoice: async (recipientPublicId: string, voice: File, durationMs: number, replyToId?: string) => {
     const formData = new FormData();
     formData.append('durationMs', String(durationMs));
+    if (replyToId) formData.append('replyToId', replyToId);
     formData.append('voice', voice);
 
     const { data } = await api.post<SendMessageResponse>(`dm/send-voice/${recipientPublicId}`, formData);
     return data;
   },
 
-  sendVideo: async (recipientPublicId: string, video: File, durationMs?: number) => {
+  sendVideo: async (recipientPublicId: string, video: File, durationMs?: number, replyToId?: string) => {
     const formData = new FormData();
     if (durationMs) formData.append('durationMs', String(durationMs));
+    if (replyToId) formData.append('replyToId', replyToId);
     formData.append('video', video);
     const { data } = await api.post<SendMessageResponse>(`dm/send-video/${recipientPublicId}`, formData);
     return data;
   },
 
-  sendFile: async (recipientPublicId: string, file: File) => {
+  sendFile: async (recipientPublicId: string, file: File, replyToId?: string) => {
     const formData = new FormData();
+    if (replyToId) formData.append('replyToId', replyToId);
     formData.append('file', file);
     const { data } = await api.post<SendMessageResponse>(`dm/send-file/${recipientPublicId}`, formData);
     return data;

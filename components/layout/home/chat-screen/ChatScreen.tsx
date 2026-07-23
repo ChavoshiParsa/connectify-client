@@ -3,9 +3,11 @@ import { Spinner } from '@/components/ui/spinner';
 import { useDebouncedSeenMessages } from '@/hooks/data/use-debounced-seen-messages';
 import { useRoomMessages } from '@/hooks/data/use-messages';
 import { useAuthStore } from '@/stores/auth-store';
+import { RoomMessageItem } from '@/types/messages';
 import { ChevronDown } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { Fragment, useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
+import { toast } from 'sonner';
 import ChatHeader from './ChatHeader';
 import ChatInput from './ChatInput';
 import DateSeparator from './DateSeparator';
@@ -31,6 +33,8 @@ export default function ChatScreen({ dmKey }: Props) {
   const previousScrollHeightRef = useRef(0);
   const [isAtBottom, setIsAtBottom] = useState(true);
   const [newMessagesStartId, setNewMessagesStartId] = useState<string | undefined>(undefined);
+  const [replyingTo, setReplyingTo] = useState<RoomMessageItem | undefined>(undefined);
+  const [messageToReveal, setMessageToReveal] = useState<string | undefined>(undefined);
 
   const { data, isPending, isError, error, fetchNextPage, hasNextPage, isFetchingNextPage } = useRoomMessages(
     dmKey,
@@ -86,6 +90,36 @@ export default function ChatScreen({ dmKey }: Props) {
     if (chat.scrollTop <= TOP_PAGINATION_THRESHOLD_PX) fetchOlderMessages();
   }, [fetchOlderMessages, updateBottomState]);
 
+  const revealMessage = useCallback((messageId: string) => {
+    const element = document.getElementById(`message-${messageId}`);
+    if (!element) return false;
+
+    element.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    element.animate([{ filter: 'brightness(1.35)' }, { filter: 'brightness(1)' }], {
+      duration: 900,
+      easing: 'ease-out',
+    });
+    return true;
+  }, []);
+
+  const navigateToMessage = useCallback(
+    (messageId: string) => {
+      if (!revealMessage(messageId)) setMessageToReveal(messageId);
+    },
+    [revealMessage],
+  );
+
+  const handleImageLoad = useCallback(
+    (messageId: string) => {
+      if (messageId !== latestMessageId) return;
+
+      requestAnimationFrame(() => {
+        scrollToBottom('auto');
+      });
+    },
+    [latestMessageId, scrollToBottom],
+  );
+
   useLayoutEffect(() => {
     initialScrollRoomRef.current = undefined;
     unreadBoundaryRoomRef.current = undefined;
@@ -94,6 +128,8 @@ export default function ChatScreen({ dmKey }: Props) {
     fetchingOlderRef.current = false;
     previousScrollHeightRef.current = 0;
     setNewMessagesStartId(undefined);
+    setReplyingTo(undefined);
+    setMessageToReveal(undefined);
     updateBottomState(true);
   }, [dmKey, updateBottomState]);
 
@@ -166,6 +202,30 @@ export default function ChatScreen({ dmKey }: Props) {
     return () => observer.disconnect();
   }, [dmKey, scrollToBottom]);
 
+  useEffect(() => {
+    if (!messageToReveal) return;
+    if (revealMessage(messageToReveal)) {
+      setMessageToReveal(undefined);
+      return;
+    }
+
+    if (hasNextPage) {
+      if (!isFetchingNextPage) fetchOlderMessages();
+      return;
+    }
+
+    toast.error(t('original_message_not_found'));
+    setMessageToReveal(undefined);
+  }, [
+    fetchOlderMessages,
+    hasNextPage,
+    isFetchingNextPage,
+    messageToReveal,
+    messages.length,
+    revealMessage,
+    t,
+  ]);
+
   useEffect(() => () => cleanup(), [cleanup, dmKey]);
 
   if (!dmKey) {
@@ -209,7 +269,14 @@ export default function ChatScreen({ dmKey }: Props) {
                 <Fragment key={uniqueKey}>
                   {startsNewDay && <DateSeparator date={messageDate} />}
                   {item.id === newMessagesStartId && <NewMessagesSeparator />}
-                  <Message dmKey={dmKey} onVisible={markAsSeen} {...item} />
+                  <Message
+                    dmKey={dmKey}
+                    onVisible={markAsSeen}
+                    onReply={() => setReplyingTo(item)}
+                    onNavigateToMessage={navigateToMessage}
+                    onImageLoad={handleImageLoad}
+                    {...item}
+                  />
                 </Fragment>
               );
             })
@@ -229,7 +296,7 @@ export default function ChatScreen({ dmKey }: Props) {
         </Button>
       )}
 
-      <ChatInput dmKey={dmKey} />
+      <ChatInput dmKey={dmKey} replyingTo={replyingTo} onCancelReply={() => setReplyingTo(undefined)} />
     </div>
   );
 }

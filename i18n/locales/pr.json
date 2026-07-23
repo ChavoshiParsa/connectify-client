@@ -193,6 +193,16 @@
     "delete_message_description": "این پیام برای همه حذف می‌شود و قابل بازگردانی نیست.",
     "deleting_message": "در حال حذف...",
     "message_deleted": "پیام حذف شد.",
-    "delete_message_failed": "پیام حذف نشد."
+    "delete_message_failed": "پیام حذف نشد.",
+    "reply_message": "پاسخ",
+    "cancel_reply": "لغو پاسخ",
+    "go_to_replied_message": "رفتن به پیام اصلی",
+    "original_message_not_found": "پیام اصلی بارگذاری نشد.",
+    "deleted_message": "پیام حذف‌شده",
+    "message": "پیام",
+    "photo": "تصویر",
+    "voice_message": "پیام صوتی",
+    "video": "ویدیو",
+    "file": "فایل"
   }
 }

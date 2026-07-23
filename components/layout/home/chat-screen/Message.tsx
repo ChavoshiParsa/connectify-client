@@ -23,19 +23,23 @@ import { useDeleteMessage, useEditMessage } from '@/hooks/data/use-messages';
 import { cn } from '@/lib/utils';
 import { useAuthStore } from '@/stores/auth-store';
 import { RoomMessageItem } from '@/types/messages';
-import { Check, CheckCheck, CircleAlert, Clock, Copy, Pencil, Save, Trash2 } from 'lucide-react';
+import { Check, CheckCheck, CircleAlert, Clock, Copy, Pencil, Reply, Save, Trash2 } from 'lucide-react';
 import { motion, Variants } from 'motion/react';
 import { useTranslations } from 'next-intl';
 import { FormEvent, useEffect, useRef, useState } from 'react';
 import { toast } from 'sonner';
 import FileMessage from './FileMessage';
 import MessageImage from './MessageImage';
+import MessageReplyPreview from './MessageReplyPreview';
 import VideoMessage from './VideoMessage';
 import VoiceMessage from './VoiceMessage';
 
 type Props = RoomMessageItem & {
   dmKey: string;
   onVisible: (messageId: string) => void;
+  onReply: () => void;
+  onNavigateToMessage: (messageId: string) => void;
+  onImageLoad: (messageId: string) => void;
 };
 
 const bubbleVariants: Variants = {
@@ -55,6 +59,7 @@ export default function Message({
   id,
   content,
   attachments,
+  replyTo,
   editedAt,
   isPending,
   isError,
@@ -63,6 +68,9 @@ export default function Message({
   createdAt,
   dmKey,
   onVisible,
+  onReply,
+  onNavigateToMessage,
+  onImageLoad,
 }: Props) {
   const t = useTranslations('ChatScreen');
   const { detectLocale, convertToPrDigitsIfPr, formatTime } = useLocaleUtils();
@@ -78,6 +86,7 @@ export default function Message({
   const canCopy = Boolean(content.trim());
   const canDelete = isMyMessage && !isPending && !isError;
   const canEdit = canDelete && canCopy;
+  const canReply = !isPending && !isError;
   const messageLocal = detectLocale(content);
   const editLocal = detectLocale(editContent);
   const imageAttachments = attachments?.filter((attachment) => attachment.type === 'IMAGE') ?? [];
@@ -182,8 +191,9 @@ export default function Message({
   return (
     <>
       <ContextMenu>
-        <ContextMenuTrigger asChild disabled={isEditDialogOpen || (!canCopy && !canDelete)}>
+        <ContextMenuTrigger asChild disabled={isEditDialogOpen || (!canCopy && !canDelete && !canReply)}>
           <motion.div
+            id={`message-${id}`}
             className={cn(
               'bubble flex w-fit max-w-[80%] min-w-24 flex-col gap-1 p-2',
               isMyMessage
@@ -195,8 +205,20 @@ export default function Message({
             animate="visible"
             ref={messageRef}
           >
+            {replyTo && (
+              <MessageReplyPreview
+                message={replyTo}
+                onClick={replyTo.deletedAt ? undefined : () => onNavigateToMessage(replyTo.id)}
+              />
+            )}
+
             {imageAttachments.map((attachment) => (
-              <MessageImage key={attachment.fileId} messageId={id} attachment={attachment} />
+              <MessageImage
+                key={attachment.fileId}
+                messageId={id}
+                attachment={attachment}
+                onLoad={() => onImageLoad(id)}
+              />
             ))}
 
             {voiceAttachments.map((attachment) => (
@@ -227,6 +249,10 @@ export default function Message({
         </ContextMenuTrigger>
 
         <ContextMenuContent>
+          <ContextMenuItem disabled={!canReply} onSelect={onReply}>
+            <Reply />
+            {t('reply_message')}
+          </ContextMenuItem>
           <ContextMenuItem disabled={!canCopy} onSelect={() => void copyMessage()}>
             <Copy />
             {t('copy_message')}

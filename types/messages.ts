@@ -40,6 +40,18 @@ export type MessageAttachment =
   | VideoMessageAttachment
   | FileMessageAttachment;
 
+export type ReplyMessagePreview = {
+  id: string;
+  content: string;
+  attachments: MessageAttachment[] | null;
+  deletedAt: Date | null;
+  sender: {
+    firstName: string;
+    lastName: string | null;
+    publicId: string;
+  };
+};
+
 export type DmLastMessage = {
   clientId?: string; // client added
   id: string;
@@ -80,6 +92,7 @@ export type RoomMessageItem = {
   createdAt: Date;
   content: string;
   attachments: MessageAttachment[] | null;
+  replyTo: ReplyMessagePreview | null;
   editedAt: Date | null;
   sender: SafeUser;
   receipts: {
@@ -107,6 +120,7 @@ export type SendMessageResponse = {
   messageId: string;
   content: string;
   attachments: MessageAttachment[] | null;
+  replyToId: string | null;
   createdAt: Date;
   dmKey: string;
 };
