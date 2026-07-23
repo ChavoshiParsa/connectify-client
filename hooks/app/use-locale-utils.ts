@@ -6,6 +6,27 @@ export function useLocaleUtils() {
   const locale = useLocale();
   const t = useTranslations('Date');
 
+  const formatChatDate = (timestamp: string): string => {
+    const date = new Date(timestamp);
+    const now = new Date();
+    const dateDay = Date.UTC(date.getFullYear(), date.getMonth(), date.getDate());
+    const today = Date.UTC(now.getFullYear(), now.getMonth(), now.getDate());
+    const daysAgo = Math.round((today - dateDay) / 86_400_000);
+
+    if (daysAgo === 0) return t('Today');
+    if (daysAgo === 1) return t('Yesterday');
+
+    if (daysAgo > 1 && daysAgo < 7) {
+      return t(date.toLocaleDateString('en-US', { weekday: 'long' }));
+    }
+
+    return new Intl.DateTimeFormat(locale === 'pr' ? 'fa-IR-u-ca-persian' : 'en-US', {
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric',
+    }).format(date);
+  };
+
   const formatChatTime = (timestamp: string): string => {
     const date = new Date(timestamp);
     const now = new Date();
@@ -71,5 +92,5 @@ export function useLocaleUtils() {
     return text.replace(/\d/g, (digit) => persianNumbers[englishNumbers.indexOf(digit)]);
   };
 
-  return { locale, t, formatTime, detectLocale, convertToPrDigitsIfPr, formatChatTime };
+  return { locale, t, formatTime, detectLocale, convertToPrDigitsIfPr, formatChatTime, formatChatDate };
 }

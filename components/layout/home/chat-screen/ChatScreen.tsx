@@ -8,6 +8,7 @@ import { useTranslations } from 'next-intl';
 import { Fragment, useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import ChatHeader from './ChatHeader';
 import ChatInput from './ChatInput';
+import DateSeparator from './DateSeparator';
 import Message from './Message';
 import NewMessagesSeparator from './NewMessagesSeparator';
 
@@ -21,8 +22,9 @@ export default function ChatScreen({ dmKey }: Props) {
   const myPublicId = useAuthStore((state) => state.user?.publicId);
   const chatRef = useRef<HTMLDivElement>(null);
   const contentRef = useRef<HTMLDivElement>(null);
-  const initializedRoomRef = useRef<string | undefined>(undefined);
+  const initialScrollRoomRef = useRef<string | undefined>(undefined);
   const unreadBoundaryRoomRef = useRef<string | undefined>(undefined);
+  const previousLatestMessageIdRef = useRef<string | undefined>(undefined);
   const initialScrollCompleteRef = useRef(false);
   const isAtBottomRef = useRef(true);
   const fetchingOlderRef = useRef(false);
@@ -42,7 +44,8 @@ export default function ChatScreen({ dmKey }: Props) {
         .sort((a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()) ?? [],
     [data],
   );
-  const latestMessageId = messages.at(-1)?.id;
+  const latestMessage = messages.at(-1);
+  const latestMessageId = latestMessage?.id;
   const { markAsSeen, cleanup } = useDebouncedSeenMessages(dmKey || '', 500);
 
   const updateBottomState = useCallback((value: boolean) => {
@@ -84,22 +87,31 @@ export default function ChatScreen({ dmKey }: Props) {
   }, [fetchOlderMessages, updateBottomState]);
 
   useLayoutEffect(() => {
-    if (!dmKey) {
-      initializedRoomRef.current = undefined;
-      unreadBoundaryRoomRef.current = undefined;
-      initialScrollCompleteRef.current = false;
-      setNewMessagesStartId(undefined);
-      return;
-    }
-    if (isPending || !chatRef.current || initializedRoomRef.current === dmKey) return;
-
-    initializedRoomRef.current = dmKey;
+    initialScrollRoomRef.current = undefined;
+    unreadBoundaryRoomRef.current = undefined;
+    previousLatestMessageIdRef.current = undefined;
     initialScrollCompleteRef.current = false;
+    fetchingOlderRef.current = false;
+    previousScrollHeightRef.current = 0;
+    setNewMessagesStartId(undefined);
+    updateBottomState(true);
+  }, [dmKey, updateBottomState]);
+
+  useLayoutEffect(() => {
+    if (!dmKey || isPending || !chatRef.current || initialScrollRoomRef.current === dmKey) return;
+
+    initialScrollRoomRef.current = dmKey;
+    initialScrollCompleteRef.current = false;
+    scrollToBottom('auto');
+
     const frame = requestAnimationFrame(() => {
       scrollToBottom('auto');
       initialScrollCompleteRef.current = true;
     });
-    const settleTimer = setTimeout(() => scrollToBottom('auto'), 250);
+    const settleTimer = setTimeout(() => {
+      scrollToBottom('auto');
+      initialScrollCompleteRef.current = true;
+    }, 300);
 
     return () => {
       cancelAnimationFrame(frame);
@@ -108,14 +120,31 @@ export default function ChatScreen({ dmKey }: Props) {
   }, [dmKey, isPending, scrollToBottom]);
 
   useLayoutEffect(() => {
-    if (!dmKey || isPending || unreadBoundaryRoomRef.current === dmKey) return;
+    if (!dmKey || !myPublicId || isPending || unreadBoundaryRoomRef.current === dmKey) return;
 
     unreadBoundaryRoomRef.current = dmKey;
     const firstUnreadIncoming = messages.find(
       (message) => message.sender.publicId !== myPublicId && message.receipts.some((receipt) => !receipt.readAt),
     );
     setNewMessagesStartId(firstUnreadIncoming?.id);
-  }, [dmKey, isPending, messages, myPublicId]);
+    previousLatestMessageIdRef.current = latestMessageId;
+  }, [dmKey, isPending, latestMessageId, messages, myPublicId]);
+
+  useLayoutEffect(() => {
+    if (!dmKey || !initialScrollCompleteRef.current || !latestMessage || !latestMessageId) return;
+
+    const previousLatestMessageId = previousLatestMessageIdRef.current;
+    previousLatestMessageIdRef.current = latestMessageId;
+
+    if (!previousLatestMessageId || previousLatestMessageId === latestMessageId) return;
+
+    if (latestMessage.sender.publicId !== myPublicId) {
+      setNewMessagesStartId((currentBoundary) => currentBoundary ?? latestMessageId);
+    }
+
+    const frame = requestAnimationFrame(() => scrollToBottom('smooth'));
+    return () => cancelAnimationFrame(frame);
+  }, [dmKey, latestMessage, latestMessageId, myPublicId, scrollToBottom]);
 
   useLayoutEffect(() => {
     const chat = chatRef.current;
@@ -137,12 +166,6 @@ export default function ChatScreen({ dmKey }: Props) {
     return () => observer.disconnect();
   }, [dmKey, scrollToBottom]);
 
-  useEffect(() => {
-    if (latestMessageId && initialScrollCompleteRef.current && isAtBottomRef.current) {
-      scrollToBottom('smooth');
-    }
-  }, [latestMessageId, scrollToBottom]);
-
   useEffect(() => () => cleanup(), [cleanup, dmKey]);
 
   if (!dmKey) {
@@ -159,7 +182,7 @@ export default function ChatScreen({ dmKey }: Props) {
 
       <div
         ref={chatRef}
-        className="no-scrollbar min-h-0 w-full flex-1 overflow-y-auto overscroll-contain p-2"
+        className="no-scrollbar min-h-0 w-full flex-1 overflow-y-auto overscroll-contain p-2 [overflow-anchor:none]"
         onScroll={handleScroll}
       >
         <div ref={contentRef} className="flex min-h-full w-full flex-col items-center gap-1.5">
@@ -175,10 +198,16 @@ export default function ChatScreen({ dmKey }: Props) {
               {t('no_messages')}
             </div>
           ) : (
-            messages.map((item) => {
+            messages.map((item, index) => {
               const uniqueKey = item.clientId || item.id || item.createdAt.toString();
+              const messageDate = new Date(item.createdAt);
+              const previousMessage = messages[index - 1];
+              const startsNewDay =
+                !previousMessage || messageDate.toDateString() !== new Date(previousMessage.createdAt).toDateString();
+
               return (
                 <Fragment key={uniqueKey}>
+                  {startsNewDay && <DateSeparator date={messageDate} />}
                   {item.id === newMessagesStartId && <NewMessagesSeparator />}
                   <Message dmKey={dmKey} onVisible={markAsSeen} {...item} />
                 </Fragment>

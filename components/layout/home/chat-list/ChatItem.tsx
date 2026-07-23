@@ -62,7 +62,7 @@ export default function ChatItem({ recipient, lastMessage, dmKey, unreadCount }:
       )}
       href={`/home/${dmKey}`}
     >
-      <Avatar className="relative size-12 min-h-12 min-w-12 flex-none overflow-visible rounded-xl">
+      <Avatar className="relative size-12 min-h-12 min-w-12 basis-12 flex-none overflow-visible rounded-xl">
         <AvatarImage
           className="rounded-xl"
           src={recipient.avatarUrl ?? ''}

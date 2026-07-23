@@ -22,10 +22,16 @@ export default function Home({ dmKey }: Props) {
   useWebSocketEvents();
 
   return (
-    <main className="xs:ms-14 xs:w-[calc(100%-3.5rem)] flex h-full w-full md:m-0 md:w-full" ref={mainRef}>
-      <ResizablePanelGroup direction="horizontal">
+    <main
+      className="xs:ms-14 xs:w-[calc(100%-3.5rem)] flex h-full min-h-0 w-full overflow-hidden md:m-0 md:w-full"
+      ref={mainRef}
+    >
+      <ResizablePanelGroup className="min-h-0 overflow-hidden" direction="horizontal">
         <ResizablePanel
-          className={cn(isDivUnderMd ? (dmKey ? 'hidden' : 'block') : dmKey ? 'hidden md:block' : 'block')}
+          className={cn(
+            'min-h-0 overflow-hidden',
+            isDivUnderMd ? (dmKey ? 'hidden' : 'block') : dmKey ? 'hidden md:block' : 'block',
+          )}
           minSize={40}
           defaultSize={40}
         >
@@ -33,7 +39,10 @@ export default function Home({ dmKey }: Props) {
         </ResizablePanel>
         <ResizableHandle className={cn(isDivUnderMd ? 'hidden' : 'hidden md:flex')} withHandle />
         <ResizablePanel
-          className={cn(isDivUnderMd ? (dmKey ? 'block' : 'hidden') : dmKey ? 'block' : 'hidden md:block')}
+          className={cn(
+            'min-h-0 overflow-hidden',
+            isDivUnderMd ? (dmKey ? 'block' : 'hidden') : dmKey ? 'block' : 'hidden md:block',
+          )}
           minSize={40}
           defaultSize={60}
         >
