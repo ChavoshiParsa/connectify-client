@@ -1,7 +1,7 @@
+import { disconnectSocket } from '@/lib/socket';
 import { useAuthStore } from '@/stores/auth-store';
 import axios, { AxiosError, InternalAxiosRequestConfig } from 'axios';
 import { authService } from './auth';
-import { disconnectSocket } from '@/lib/socket';
 
 type Cfg = InternalAxiosRequestConfig & {
   _retry?: boolean;

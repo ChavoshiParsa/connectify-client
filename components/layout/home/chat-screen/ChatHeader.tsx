@@ -46,15 +46,15 @@ export default function ChatHeader({ dmKey }: Props) {
         <ChevronLeft className={cn(isRtl ? 'rotate-180' : 'rotate-0')} />
       </Button>
       <div className="flex h-full w-full items-center justify-center gap-3 rounded-lg">
-        <Avatar className="relative size-11 overflow-visible rounded-lg">
+        <Avatar className="relative size-12 min-h-12 min-w-12 flex-none overflow-visible rounded-xl">
           <AvatarImage
-            className="rounded-lg"
+            className="rounded-xl"
             src={user.avatarUrl ?? ''}
             alt={`${user?.firstName} ${user?.lastName}'s avatar`}
           />
           <AvatarFallback
             className={cn(
-              'rounded-lg bg-linear-to-br text-zinc-50',
+              'rounded-xl bg-linear-to-br text-zinc-50',
               gradientAvatarClasses[user.avatarColor],
               fonts[nameLocal],
             )}

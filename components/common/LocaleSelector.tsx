@@ -8,12 +8,15 @@ import { cn } from '@/lib/utils';
 import { LocaleType } from '@/types/i18n';
 import { Globe } from 'lucide-react';
 import { useLocale } from 'next-intl';
+import { useRouter } from 'next/navigation';
 
 export default function LocaleSelector() {
   const locale = useLocale() as LocaleType;
+  const router = useRouter();
 
   async function handleValueChange(newValue: LocaleType) {
     await setUserLocale(newValue);
+    router.refresh();
   }
 
   return (

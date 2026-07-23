@@ -55,7 +55,7 @@ export default function SidebarFooter() {
       <DropdownMenuTrigger asChild>
         <button
           className={cn(
-            'mt-auto flex w-full cursor-pointer items-center gap-2 rounded-lg hover:bg-zinc-300 dark:hover:bg-zinc-800',
+            'hover:bg-primary/10 mt-auto flex w-full cursor-pointer items-center gap-2 rounded-lg',
             isSidebarOpen && 'p-2',
           )}
         >

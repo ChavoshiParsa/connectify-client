@@ -6,6 +6,7 @@ import AuthRedirectProvider from './AuthRedirectProvider';
 import NextIntlProvider from './NextIntlProvider';
 import QueryProvider from './QueryProvider';
 import ThemeProvider from './ThemeProvider';
+import PreferencesProvider from './PreferencesProvider';
 
 export default async function GlobalProvider({ children }: { children: React.ReactNode }) {
   const locale = (await getLocale()) as LocaleType;
@@ -13,14 +14,16 @@ export default async function GlobalProvider({ children }: { children: React.Rea
 
   return (
     <ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
-      <NextIntlProvider>
-        <QueryProvider>
-          <AuthRedirectProvider>
-            {children}
-            <Toaster position={isRtl ? 'bottom-left' : 'bottom-right'} richColors />
-          </AuthRedirectProvider>
-        </QueryProvider>
-      </NextIntlProvider>
+      <PreferencesProvider>
+        <NextIntlProvider>
+          <QueryProvider>
+            <AuthRedirectProvider>
+              {children}
+              <Toaster position={isRtl ? 'bottom-left' : 'bottom-right'} richColors />
+            </AuthRedirectProvider>
+          </QueryProvider>
+        </NextIntlProvider>
+      </PreferencesProvider>
     </ThemeProvider>
   );
 }

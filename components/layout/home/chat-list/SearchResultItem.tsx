@@ -32,11 +32,11 @@ export default function SearchResultItem({
       className="flex w-full cursor-pointer items-center justify-center gap-3 p-3 transition hover:bg-zinc-200 dark:hover:bg-zinc-900"
       href={`/home/${dmKey}`}
     >
-      <Avatar className="relative size-11 overflow-visible rounded-lg">
-        <AvatarImage className="rounded-lg" src={avatarUrl ?? ''} alt={`${firstName} ${lastName}'s avatar`} />
+      <Avatar className="relative size-12 min-h-12 min-w-12 flex-none overflow-visible rounded-xl">
+        <AvatarImage className="rounded-xl" src={avatarUrl ?? ''} alt={`${firstName} ${lastName}'s avatar`} />
         <AvatarFallback
           className={cn(
-            'rounded-lg bg-linear-to-br text-zinc-50',
+            'rounded-xl bg-linear-to-br text-zinc-50',
             gradientAvatarClasses[avatarColor],
             fonts[nameLocal],
           )}

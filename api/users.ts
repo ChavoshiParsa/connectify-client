@@ -28,4 +28,20 @@ export const usersService = {
     useAuthStore.getState().setAuth({ user: data.result });
     return data.result;
   },
+
+  updateProfile: async (profile: {
+    firstName: string;
+    lastName: string | null;
+    username: string;
+    biography: string | null;
+  }) => {
+    const { data } = await api.patch<{ result: User }>('/profile/update-profile', profile);
+    useAuthStore.getState().setAuth({ user: data.result });
+    return data.result;
+  },
+
+  checkUsername: async (username: string) => {
+    const { data } = await api.get<{ isAvailable: boolean }>('/profile/check-username', { params: { username } });
+    return data.isAvailable;
+  },
 };

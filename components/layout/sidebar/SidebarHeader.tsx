@@ -10,7 +10,7 @@ export default function SidebarHeader() {
 
   return (
     <button
-      className="flex w-full cursor-pointer items-center justify-start gap-2 rounded-lg p-2 transition hover:bg-zinc-300 dark:hover:bg-zinc-800"
+      className="hover:bg-primary/10 flex w-full cursor-pointer items-center justify-start gap-2 rounded-lg p-2 transition"
       onClick={toggleSidebar}
     >
       {isSidebarOpen && (
@@ -21,7 +21,7 @@ export default function SidebarHeader() {
           </div>
         </>
       )}
-      <PanelRight className="max-h-6 min-h-6 max-w-6 min-w-6 text-zinc-800 dark:text-zinc-200" />
+      <PanelRight className="text-primary max-h-6 min-h-6 max-w-6 min-w-6" />
     </button>
   );
 }

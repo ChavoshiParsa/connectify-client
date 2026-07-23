@@ -9,6 +9,9 @@ import { Check, CheckCheck, CircleAlert, Clock } from 'lucide-react';
 import { motion, Variants } from 'motion/react';
 import { useEffect, useRef } from 'react';
 import MessageImage from './MessageImage';
+import VoiceMessage from './VoiceMessage';
+import VideoMessage from './VideoMessage';
+import FileMessage from './FileMessage';
 
 type Props = RoomMessageItem & {
   dmKey: string;
@@ -45,6 +48,9 @@ export default function Message({
   const { isRtl } = useApp();
   const messageLocal = detectLocale(content);
   const imageAttachments = attachments?.filter((attachment) => attachment.type === 'IMAGE') ?? [];
+  const voiceAttachments = attachments?.filter((attachment) => attachment.type === 'VOICE') ?? [];
+  const videoAttachments = attachments?.filter((attachment) => attachment.type === 'VIDEO') ?? [];
+  const fileAttachments = attachments?.filter((attachment) => attachment.type === 'FILE') ?? [];
 
   let icon;
   if (myPublicId !== sender.publicId) icon = null;
@@ -90,7 +96,7 @@ export default function Message({
       className={cn(
         'bubble flex w-fit max-w-[80%] min-w-24 flex-col gap-1 p-2',
         myPublicId === sender.publicId
-          ? `right bg-sky-200 dark:bg-sky-800 ${!isRtl ? 'self-end' : 'self-start'}`
+          ? `right bg-primary/20 dark:bg-primary/40 ${!isRtl ? 'self-end' : 'self-start'}`
           : `left bg-zinc-200 dark:bg-zinc-800 ${isRtl ? 'self-end' : 'self-start'}`,
       )}
       variants={bubbleVariants}
@@ -100,6 +106,16 @@ export default function Message({
     >
       {imageAttachments.map((attachment) => (
         <MessageImage key={attachment.fileId} messageId={id} attachment={attachment} />
+      ))}
+
+      {voiceAttachments.map((attachment) => (
+        <VoiceMessage key={attachment.fileId} messageId={id} attachment={attachment} />
+      ))}
+      {videoAttachments.map((attachment) => (
+        <VideoMessage key={attachment.fileId} messageId={id} attachment={attachment} />
+      ))}
+      {fileAttachments.map((attachment) => (
+        <FileMessage key={attachment.fileId} messageId={id} attachment={attachment} />
       ))}
 
       {content && (

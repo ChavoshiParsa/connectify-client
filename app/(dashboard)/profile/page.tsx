@@ -3,14 +3,18 @@
 import MobileDrawer from '@/components/layout/drawer/MobileDrawer';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Textarea } from '@/components/ui/textarea';
 import { gradientAvatarClasses } from '@/constants/avatar-colors';
 import { useWindowWidth } from '@/hooks/app/use-window-width';
-import { useUpdateAvatar } from '@/hooks/data/use-users';
+import { useUpdateAvatar, useUpdateProfile } from '@/hooks/data/use-users';
+import { usersService } from '@/api/users';
 import { compressImageToTarget, dataUrlToFile } from '@/lib/image-compress';
 import { useAuthStore } from '@/stores/auth-store';
 import { Camera, ImagePlus } from 'lucide-react';
 import { useTranslations } from 'next-intl';
-import { ChangeEvent, useState } from 'react';
+import { ChangeEvent, FormEvent, useEffect, useState } from 'react';
 import { toast } from 'sonner';
 
 export default function ProfilePage() {
@@ -18,8 +22,21 @@ export default function ProfilePage() {
   const t = useTranslations('ProfilePage');
   const user = useAuthStore((state) => state.user);
   const updateAvatar = useUpdateAvatar();
+  const updateProfile = useUpdateProfile();
   const [selectedAvatar, setSelectedAvatar] = useState<File | null>(null);
   const [preview, setPreview] = useState<string | null>(null);
+  const [firstName, setFirstName] = useState('');
+  const [lastName, setLastName] = useState('');
+  const [username, setUsername] = useState('');
+  const [biography, setBiography] = useState('');
+
+  useEffect(() => {
+    if (!user) return;
+    setFirstName(user.firstName);
+    setLastName(user.lastName ?? '');
+    setUsername(user.username);
+    setBiography(user.biography ?? '');
+  }, [user]);
 
   const fallback = `${user?.firstName?.charAt(0) ?? ''}${user?.lastName?.charAt(0) ?? ''}`.toUpperCase();
 
@@ -39,7 +56,7 @@ export default function ProfilePage() {
 
     try {
       const { dataUrl, mime } = await compressImageToTarget(file, {
-        targetKB: 50,
+        targetKB: 350,
         maxWidth: 512,
         maxHeight: 512,
       });
@@ -48,6 +65,33 @@ export default function ProfilePage() {
       setPreview(dataUrl);
     } catch {
       toast.error(t('compress_failed'));
+    }
+  };
+
+  const saveProfile = async (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    const normalizedUsername = username.trim().toLowerCase();
+
+    if (!firstName.trim() || firstName.trim().length > 24) return toast.error(t('invalid_first_name'));
+    if (lastName.trim().length > 24) return toast.error(t('invalid_last_name'));
+    if (!/^[a-z][a-z0-9_]{2,11}$/.test(normalizedUsername)) return toast.error(t('invalid_username'));
+    if (biography.trim().length > 128) return toast.error(t('invalid_biography'));
+
+    try {
+      if (normalizedUsername !== user?.username && !(await usersService.checkUsername(normalizedUsername))) {
+        toast.error(t('username_taken'));
+        return;
+      }
+
+      await updateProfile.mutateAsync({
+        firstName: firstName.trim(),
+        lastName: lastName.trim() || null,
+        username: normalizedUsername,
+        biography: biography.trim() || null,
+      });
+      toast.success(t('profile_saved'));
+    } catch {
+      toast.error(t('profile_save_failed'));
     }
   };
 
@@ -64,7 +108,7 @@ export default function ProfilePage() {
   };
 
   return (
-    <div className="xs:ms-14 xs:w-[calc(100%-3.5rem)] flex h-full w-full items-start gap-2 bg-zinc-100 p-2 md:m-0 md:w-full dark:bg-zinc-950">
+    <div className="xs:ms-14 xs:w-[calc(100%-3.5rem)] flex h-full w-full items-start gap-2 overflow-y-auto bg-zinc-100 p-2 md:m-0 md:w-full dark:bg-zinc-950">
       {!isXs && <MobileDrawer />}
       <main className="mx-auto flex w-full max-w-2xl flex-col gap-6 p-4 sm:p-8">
         <div>
@@ -118,6 +162,62 @@ export default function ProfilePage() {
             </div>
           </div>
         </section>
+
+        <form className="bg-card grid gap-5 rounded-2xl border p-6 shadow-sm" onSubmit={saveProfile}>
+          <div className="grid gap-2 sm:grid-cols-2 sm:gap-4">
+            <div className="grid gap-2">
+              <Label htmlFor="profile-first-name">{t('first_name')}</Label>
+              <Input
+                id="profile-first-name"
+                value={firstName}
+                maxLength={24}
+                onChange={(event) => setFirstName(event.target.value)}
+                required
+              />
+            </div>
+            <div className="grid gap-2">
+              <Label htmlFor="profile-last-name">{t('last_name')}</Label>
+              <Input
+                id="profile-last-name"
+                value={lastName}
+                maxLength={24}
+                placeholder={t('optional')}
+                onChange={(event) => setLastName(event.target.value)}
+              />
+            </div>
+          </div>
+
+          <div className="grid gap-2">
+            <Label htmlFor="profile-username">{t('username')}</Label>
+            <Input
+              id="profile-username"
+              value={username}
+              maxLength={12}
+              autoCapitalize="none"
+              spellCheck={false}
+              onChange={(event) => setUsername(event.target.value.toLowerCase())}
+              required
+            />
+            <p className="text-muted-foreground text-xs">{t('username_help')}</p>
+          </div>
+
+          <div className="grid gap-2">
+            <Label htmlFor="profile-biography">{t('biography')}</Label>
+            <Textarea
+              id="profile-biography"
+              className="min-h-32 resize-y"
+              value={biography}
+              maxLength={128}
+              placeholder={t('biography_placeholder')}
+              onChange={(event) => setBiography(event.target.value)}
+            />
+            <span className="text-muted-foreground text-end text-xs">{biography.length}/128</span>
+          </div>
+
+          <Button className="justify-self-end" type="submit" disabled={updateProfile.isPending}>
+            {updateProfile.isPending ? t('saving_profile') : t('save_profile')}
+          </Button>
+        </form>
       </main>
     </div>
   );

@@ -9,7 +9,7 @@ import { cn } from '@/lib/utils';
 import { useAuthStore } from '@/stores/auth-store';
 import { useTypingStore } from '@/stores/typing-store';
 import { DmRoomSummary } from '@/types/messages';
-import { Check, CheckCheck, CircleAlert, Clock, ImageIcon, Pencil } from 'lucide-react';
+import { Check, CheckCheck, CircleAlert, Clock, FileText, ImageIcon, Mic, Pencil, Video } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
@@ -22,7 +22,20 @@ export default function ChatItem({ recipient, lastMessage, dmKey, unreadCount }:
     `${recipient?.firstName?.charAt(0) ?? ''}‌${recipient?.lastName?.charAt(0) ?? ''}`.toUpperCase();
   const nameLocal = detectLocale(avatarFallback);
   const isImageMessage = lastMessage?.attachments?.some((attachment) => attachment.type === 'IMAGE') ?? false;
-  const messagePreview = lastMessage?.content || (isImageMessage ? t('photo') : '');
+  const isVoiceMessage = lastMessage?.attachments?.some((attachment) => attachment.type === 'VOICE') ?? false;
+  const isVideoMessage = lastMessage?.attachments?.some((attachment) => attachment.type === 'VIDEO') ?? false;
+  const isFileMessage = lastMessage?.attachments?.some((attachment) => attachment.type === 'FILE') ?? false;
+  const messagePreview =
+    lastMessage?.content ||
+    (isImageMessage
+      ? t('photo')
+      : isVoiceMessage
+        ? t('voice')
+        : isVideoMessage
+          ? t('video')
+          : isFileMessage
+            ? t('file')
+            : '');
   const messageLocal = detectLocale(messagePreview);
   const myPublicId = useAuthStore((state) => state.user?.publicId);
 
@@ -49,15 +62,15 @@ export default function ChatItem({ recipient, lastMessage, dmKey, unreadCount }:
       )}
       href={`/home/${dmKey}`}
     >
-      <Avatar className="relative size-11 overflow-visible rounded-lg">
+      <Avatar className="relative size-12 min-h-12 min-w-12 flex-none overflow-visible rounded-xl">
         <AvatarImage
-          className="rounded-lg"
+          className="rounded-xl"
           src={recipient.avatarUrl ?? ''}
           alt={`${recipient?.firstName} ${recipient?.lastName}'s avatar`}
         />
         <AvatarFallback
           className={cn(
-            'rounded-lg bg-linear-to-br text-zinc-50',
+            'rounded-xl bg-linear-to-br text-zinc-50',
             gradientAvatarClasses[recipient.avatarColor],
             fonts[nameLocal],
           )}
@@ -93,6 +106,9 @@ export default function ChatItem({ recipient, lastMessage, dmKey, unreadCount }:
               dir={rtlLocales.has(messageLocal) ? 'rtl' : 'ltr'}
             >
               {isImageMessage && <ImageIcon className="me-1 inline size-3" />}
+              {isVoiceMessage && <Mic className="me-1 inline size-3" />}
+              {isVideoMessage && <Video className="me-1 inline size-3" />}
+              {isFileMessage && <FileText className="me-1 inline size-3" />}
               {messagePreview}
             </p>
           )}

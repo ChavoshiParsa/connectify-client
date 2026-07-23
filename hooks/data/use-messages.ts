@@ -65,6 +65,26 @@ export function useSendImage() {
   });
 }
 
+export function useSendVoice() {
+  return useMutation<SendMessageResponse, unknown, { recipientPublicId: string; voice: File; durationMs: number }>({
+    mutationFn: ({ recipientPublicId, voice, durationMs }) =>
+      messagesService.sendVoice(recipientPublicId, voice, durationMs),
+  });
+}
+
+export function useSendVideo() {
+  return useMutation<SendMessageResponse, unknown, { recipientPublicId: string; video: File; durationMs?: number }>({
+    mutationFn: ({ recipientPublicId, video, durationMs }) =>
+      messagesService.sendVideo(recipientPublicId, video, durationMs),
+  });
+}
+
+export function useSendFile() {
+  return useMutation<SendMessageResponse, unknown, { recipientPublicId: string; file: File }>({
+    mutationFn: ({ recipientPublicId, file }) => messagesService.sendFile(recipientPublicId, file),
+  });
+}
+
 export function useSetTyping() {
   return useMutation<SetTypingResponse, unknown, { recipientPublicId: string }>({
     mutationFn: ({ recipientPublicId }) => messagesService.setTyping(recipientPublicId),

@@ -57,6 +57,38 @@ export const messagesService = {
     return data;
   },
 
+  sendVoice: async (recipientPublicId: string, voice: File, durationMs: number) => {
+    const formData = new FormData();
+    formData.append('durationMs', String(durationMs));
+    formData.append('voice', voice);
+
+    const { data } = await api.post<SendMessageResponse>(`dm/send-voice/${recipientPublicId}`, formData);
+    return data;
+  },
+
+  sendVideo: async (recipientPublicId: string, video: File, durationMs?: number) => {
+    const formData = new FormData();
+    if (durationMs) formData.append('durationMs', String(durationMs));
+    formData.append('video', video);
+    const { data } = await api.post<SendMessageResponse>(`dm/send-video/${recipientPublicId}`, formData);
+    return data;
+  },
+
+  sendFile: async (recipientPublicId: string, file: File) => {
+    const formData = new FormData();
+    formData.append('file', file);
+    const { data } = await api.post<SendMessageResponse>(`dm/send-file/${recipientPublicId}`, formData);
+    return data;
+  },
+
+  getMessageMedia: async (messageId: string, fileId: string, signal?: AbortSignal) => {
+    const { data } = await api.get<Blob>(`dm/message-media/${messageId}/${fileId}`, {
+      responseType: 'blob',
+      signal,
+    });
+    return data;
+  },
+
   setTyping: async (recipientPublicId: string) => {
     const { data } = await api.post<SetTypingResponse>(`dm/set-typing/${recipientPublicId}`);
     return data;

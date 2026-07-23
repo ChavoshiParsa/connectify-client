@@ -37,7 +37,7 @@ export default function Sidebar() {
 
   return (
     <motion.div
-      className="xs:flex absolute z-20 hidden h-full flex-col items-center justify-center gap-2 bg-zinc-200 p-2 md:relative dark:bg-zinc-900"
+      className="xs:flex bg-sidebar border-sidebar-border absolute z-20 hidden h-full flex-col items-center justify-center gap-2 border-e p-2 md:relative"
       variants={variants}
       initial={false}
       animate={isSidebarOpen ? 'open' : 'closed'}

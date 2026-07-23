@@ -34,3 +34,13 @@ export function useUpdateAvatar() {
     },
   });
 }
+
+export function useUpdateProfile() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (profile: { firstName: string; lastName: string | null; username: string; biography: string | null }) =>
+      usersService.updateProfile(profile),
+    onSuccess: (user) => queryClient.setQueryData([USERS.ME], { data: user, statusText: 'OK' }),
+  });
+}
