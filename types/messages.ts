@@ -1,4 +1,4 @@
-import { SafeUser } from './users';
+import { SafeUser, User } from './users';
 
 export type ImageMessageAttachment = {
   type: 'IMAGE';
@@ -84,7 +84,12 @@ export type DmRoomSummary = {
 
 export type MyRoomsResponse = DmRoomSummary[];
 
-export type RoomDetailsResponse = Omit<DmRoomSummary, 'unreadCount'>;
+export type ChatProfileUser = SafeUser & Pick<User, 'biography'>;
+
+export type RoomDetailsResponse = Omit<DmRoomSummary, 'unreadCount' | 'recipient' | 'updatedAt'> & {
+  recipient: ChatProfileUser;
+  updatedAt: Date | null;
+};
 
 export type RoomMessageItem = {
   clientId?: string; // client added

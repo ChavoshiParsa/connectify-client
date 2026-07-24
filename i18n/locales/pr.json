@@ -210,5 +210,19 @@
     "newer_search_result": "نتیجه جدیدتر",
     "search_messages_failed": "جستجوی پیام‌ها انجام نشد",
     "search_result_count": "{current} از {total}"
+  },
+  "ChatProfile": {
+    "open_profile": "باز کردن نمایه {name}",
+    "description": "اطلاعات نمایه {name}.",
+    "open_profile_photo": "باز کردن تصویر نمایه",
+    "profile_photo": "تصویر نمایه {name}",
+    "close_profile_photo": "بستن تصویر نمایه",
+    "username": "نام کاربری",
+    "email": "ایمیل",
+    "biography": "زندگی‌نامه",
+    "no_biography": "زندگی‌نامه‌ای ثبت نشده است.",
+    "online": "آنلاین",
+    "offline": "آفلاین",
+    "last_seen": "آخرین بازدید {time}"
   }
 }

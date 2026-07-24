@@ -14,6 +14,7 @@ import { ChevronDown, ChevronLeft, ChevronUp, CircleAlert, Search, X } from 'luc
 import { useTranslations } from 'next-intl';
 import { useRouter } from 'next/navigation';
 import { FormEvent, useEffect, useMemo, useRef, useState } from 'react';
+import ChatProfileDialog from './ChatProfileDialog';
 
 type Props = {
   dmKey?: string;
@@ -25,8 +26,10 @@ export default function ChatHeader({ dmKey, onNavigateToMessage }: Props) {
   const { isRtl } = useApp();
   const router = useRouter();
   const t = useTranslations('ChatScreen');
+  const profileT = useTranslations('ChatProfile');
   const searchInputRef = useRef<HTMLInputElement>(null);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
+  const [isProfileOpen, setIsProfileOpen] = useState(false);
   const [searchInput, setSearchInput] = useState('');
   const [debouncedSearch, setDebouncedSearch] = useState('');
   const [activeResultId, setActiveResultId] = useState<string>();
@@ -49,6 +52,7 @@ export default function ChatHeader({ dmKey, onNavigateToMessage }: Props) {
     setSearchInput('');
     setDebouncedSearch('');
     setActiveResultId(undefined);
+    setIsProfileOpen(false);
   }, [dmKey]);
 
   useEffect(() => {
@@ -64,9 +68,11 @@ export default function ChatHeader({ dmKey, onNavigateToMessage }: Props) {
 
   if (isPending) return <Spinner />;
   if (isError) return <div>{error?.message}</div>;
+  if (!data?.recipient) return null;
 
-  const user = data?.recipient;
-  const avatarFallback = `${user?.firstName?.charAt(0) ?? ''}${user?.lastName?.charAt(0) ?? ''}`.toUpperCase();
+  const user = data.recipient;
+  const fullName = [user.firstName, user.lastName].filter(Boolean).join(' ');
+  const avatarFallback = `${user.firstName.charAt(0)}${user.lastName?.charAt(0) ?? ''}`.toUpperCase();
   const nameLocal = detectLocale(avatarFallback);
 
   function openSearch() {
@@ -119,134 +125,141 @@ export default function ChatHeader({ dmKey, onNavigateToMessage }: Props) {
   const localizedTotalResults = convertToPrDigitsIfPr(String(totalSearchResults));
 
   return (
-    <div className="flex w-full items-center justify-center gap-2 border-b border-zinc-200 bg-zinc-100 p-2 dark:border-zinc-800 dark:bg-zinc-950">
-      <Button
-        className="min-h-10 min-w-10 cursor-pointer border border-zinc-200 bg-zinc-100 hover:bg-zinc-200 dark:border-zinc-900 dark:bg-zinc-950 dark:hover:bg-zinc-900"
-        variant="ghost"
-        size="icon"
-        onClick={() => router.push('/home')}
-      >
-        <ChevronLeft className={cn(isRtl ? 'rotate-180' : 'rotate-0')} />
-      </Button>
+    <>
+      <div className="flex w-full items-center justify-center gap-2 border-b border-zinc-200 bg-zinc-100 p-2 dark:border-zinc-800 dark:bg-zinc-950">
+        <Button
+          className="min-h-10 min-w-10 cursor-pointer border border-zinc-200 bg-zinc-100 hover:bg-zinc-200 dark:border-zinc-900 dark:bg-zinc-950 dark:hover:bg-zinc-900"
+          variant="ghost"
+          size="icon"
+          onClick={() => router.push('/home')}
+        >
+          <ChevronLeft className={cn(isRtl ? 'rotate-180' : 'rotate-0')} />
+        </Button>
 
-      {isSearchOpen ? (
-        <form className="flex min-w-0 flex-1 items-center gap-1" onSubmit={submitSearch}>
-          <div className="relative min-w-0 flex-1">
-            <Search className="pointer-events-none absolute start-3 top-1/2 size-4 -translate-y-1/2 text-zinc-500" />
-            <Input
-              ref={searchInputRef}
-              className={cn('h-10 ps-9 pe-20', fonts[searchLocale])}
-              value={searchInput}
-              onChange={(event) => setSearchInput(event.target.value)}
-              placeholder={t('search_messages')}
-              dir={rtlLocales.has(searchLocale) ? 'rtl' : 'ltr'}
-              maxLength={200}
-              autoComplete="off"
-              onKeyDown={(event) => {
-                if (event.key === 'Escape') closeSearch();
-              }}
-            />
-            <span
-              className="absolute end-2 top-1/2 flex -translate-y-1/2 items-center text-xs whitespace-nowrap text-zinc-500"
-              aria-live="polite"
-              aria-label={t('search_result_count', {
-                current: localizedCurrentResult,
-                total: localizedTotalResults,
-              })}
-            >
-              {debouncedSearch && search.isPending ? (
-                <Spinner className="size-4" />
-              ) : debouncedSearch && search.isError ? (
-                <CircleAlert className="text-destructive size-4" aria-label={t('search_messages_failed')} />
-              ) : (
-                `${localizedCurrentResult} / ${localizedTotalResults}`
-              )}
-            </span>
-          </div>
-          <Button
-            type="button"
-            variant="ghost"
-            size="icon"
-            className="size-10 shrink-0"
-            onClick={() => void goToOlderResult()}
-            disabled={!canGoToOlderResult || search.isFetchingNextPage}
-            aria-label={t('older_search_result')}
-          >
-            {search.isFetchingNextPage ? <Spinner className="size-4" /> : <ChevronUp />}
-          </Button>
-          <Button
-            type="button"
-            variant="ghost"
-            size="icon"
-            className="size-10 shrink-0"
-            onClick={goToNewerResult}
-            disabled={!canGoToNewerResult}
-            aria-label={t('newer_search_result')}
-          >
-            <ChevronDown />
-          </Button>
-          <Button
-            type="button"
-            variant="ghost"
-            size="icon"
-            className="size-10 shrink-0"
-            onClick={closeSearch}
-            aria-label={t('close_message_search')}
-          >
-            <X />
-          </Button>
-        </form>
-      ) : (
-        <>
-          <div className="flex h-full min-w-0 flex-1 items-center justify-center gap-3 rounded-lg">
-            <Avatar className="relative size-12 min-h-12 min-w-12 flex-none basis-12 overflow-visible rounded-xl">
-              <AvatarImage
-                className="rounded-xl"
-                src={user.avatarUrl ?? ''}
-                alt={`${user?.firstName} ${user?.lastName}'s avatar`}
+        {isSearchOpen ? (
+          <form className="flex min-w-0 flex-1 items-center gap-1" onSubmit={submitSearch}>
+            <div className="relative min-w-0 flex-1">
+              <Search className="pointer-events-none absolute start-3 top-1/2 size-4 -translate-y-1/2 text-zinc-500" />
+              <Input
+                ref={searchInputRef}
+                className={cn('h-10 ps-9 pe-20', fonts[searchLocale])}
+                value={searchInput}
+                onChange={(event) => setSearchInput(event.target.value)}
+                placeholder={t('search_messages')}
+                dir={rtlLocales.has(searchLocale) ? 'rtl' : 'ltr'}
+                maxLength={200}
+                autoComplete="off"
+                onKeyDown={(event) => {
+                  if (event.key === 'Escape') closeSearch();
+                }}
               />
-              <AvatarFallback
-                className={cn(
-                  'rounded-xl bg-linear-to-br text-zinc-50',
-                  gradientAvatarClasses[user.avatarColor],
-                  fonts[nameLocal],
-                )}
-              >
-                {avatarFallback}
-              </AvatarFallback>
-            </Avatar>
-            <div className="flex h-full min-w-0 flex-1 flex-col justify-between">
-              <span className={cn('truncate font-medium', fonts[nameLocal])}>
-                {user?.firstName} {user?.lastName}
-              </span>
               <span
-                className={cn(
-                  'truncate text-sm font-light',
-                  user.status === 'ONLINE' ? 'text-sky-500 dark:text-sky-400' : 'text-zinc-500 dark:text-zinc-400',
-                )}
+                className="absolute end-2 top-1/2 flex -translate-y-1/2 items-center text-xs whitespace-nowrap text-zinc-500"
+                aria-live="polite"
+                aria-label={t('search_result_count', {
+                  current: localizedCurrentResult,
+                  total: localizedTotalResults,
+                })}
               >
-                {isSomeoneTyping
-                  ? t('typing')
-                  : user.status === 'ONLINE'
-                    ? t('online')
-                    : `${t('last_seen_at')} ${convertToPrDigitsIfPr(
-                        formatChatTime((user.lastActiveAt as Date).toString()),
-                      )}`}
+                {debouncedSearch && search.isPending ? (
+                  <Spinner className="size-4" />
+                ) : debouncedSearch && search.isError ? (
+                  <CircleAlert className="text-destructive size-4" aria-label={t('search_messages_failed')} />
+                ) : (
+                  `${localizedCurrentResult} / ${localizedTotalResults}`
+                )}
               </span>
             </div>
-          </div>
-          <Button
-            type="button"
-            variant="ghost"
-            size="icon"
-            className="size-10 shrink-0"
-            onClick={openSearch}
-            aria-label={t('search_messages')}
-          >
-            <Search />
-          </Button>
-        </>
-      )}
-    </div>
+            <Button
+              type="button"
+              variant="ghost"
+              size="icon"
+              className="size-10 shrink-0"
+              onClick={() => void goToOlderResult()}
+              disabled={!canGoToOlderResult || search.isFetchingNextPage}
+              aria-label={t('older_search_result')}
+            >
+              {search.isFetchingNextPage ? <Spinner className="size-4" /> : <ChevronUp />}
+            </Button>
+            <Button
+              type="button"
+              variant="ghost"
+              size="icon"
+              className="size-10 shrink-0"
+              onClick={goToNewerResult}
+              disabled={!canGoToNewerResult}
+              aria-label={t('newer_search_result')}
+            >
+              <ChevronDown />
+            </Button>
+            <Button
+              type="button"
+              variant="ghost"
+              size="icon"
+              className="size-10 shrink-0"
+              onClick={closeSearch}
+              aria-label={t('close_message_search')}
+            >
+              <X />
+            </Button>
+          </form>
+        ) : (
+          <>
+            <div className="flex h-full min-w-0 flex-1 items-center justify-center gap-3 rounded-lg">
+              <button
+                type="button"
+                className="shrink-0 cursor-pointer rounded-xl transition-transform outline-none hover:scale-105 focus-visible:ring-2 focus-visible:ring-sky-500 focus-visible:ring-offset-2"
+                onClick={() => setIsProfileOpen(true)}
+                aria-label={profileT('open_profile', { name: fullName })}
+              >
+                <Avatar className="relative size-12 min-h-12 min-w-12 flex-none basis-12 overflow-visible rounded-xl">
+                  <AvatarImage className="rounded-xl" src={user.avatarUrl ?? ''} alt={fullName} />
+                  <AvatarFallback
+                    className={cn(
+                      'rounded-xl bg-linear-to-br text-zinc-50',
+                      gradientAvatarClasses[user.avatarColor],
+                      fonts[nameLocal],
+                    )}
+                  >
+                    {avatarFallback}
+                  </AvatarFallback>
+                </Avatar>
+              </button>
+              <div className="flex h-full min-w-0 flex-1 flex-col justify-between">
+                <span className={cn('truncate font-medium', fonts[nameLocal])}>{fullName}</span>
+                <span
+                  className={cn(
+                    'truncate text-sm font-light',
+                    user.status === 'ONLINE' ? 'text-sky-500 dark:text-sky-400' : 'text-zinc-500 dark:text-zinc-400',
+                  )}
+                >
+                  {isSomeoneTyping
+                    ? t('typing')
+                    : user.status === 'ONLINE'
+                      ? t('online')
+                      : user.lastActiveAt
+                        ? `${t('last_seen_at')} ${convertToPrDigitsIfPr(
+                            formatChatTime(new Date(user.lastActiveAt).toString()),
+                          )}`
+                        : profileT('offline')}
+                </span>
+              </div>
+            </div>
+            <Button
+              type="button"
+              variant="ghost"
+              size="icon"
+              className="size-10 shrink-0"
+              onClick={openSearch}
+              aria-label={t('search_messages')}
+            >
+              <Search />
+            </Button>
+          </>
+        )}
+      </div>
+
+      <ChatProfileDialog user={user} open={isProfileOpen} onOpenChange={setIsProfileOpen} />
+    </>
   );
 }

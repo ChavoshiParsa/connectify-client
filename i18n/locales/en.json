@@ -210,5 +210,19 @@
     "newer_search_result": "Newer search result",
     "search_messages_failed": "Message search failed",
     "search_result_count": "{current} of {total}"
+  },
+  "ChatProfile": {
+    "open_profile": "Open {name}'s profile",
+    "description": "Profile information for {name}.",
+    "open_profile_photo": "Open profile photo",
+    "profile_photo": "{name}'s profile photo",
+    "close_profile_photo": "Close profile photo",
+    "username": "Username",
+    "email": "Email",
+    "biography": "Biography",
+    "no_biography": "No biography provided.",
+    "online": "Online",
+    "offline": "Offline",
+    "last_seen": "Last seen {time}"
   }
 }
