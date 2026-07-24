@@ -36,6 +36,19 @@ export function useRoomMessages(dmKey?: string, enabled = true) {
   });
 }
 
+export function useSearchRoomMessages(dmKey: string, query: string, enabled = true) {
+  const normalizedQuery = query.trim();
+
+  return useInfiniteQuery({
+    queryKey: [MESSAGES.SEARCH_ROOM_MESSAGES, dmKey, normalizedQuery],
+    queryFn: ({ pageParam }: { pageParam: string | undefined }) =>
+      messagesService.searchRoomMessages(dmKey, normalizedQuery, pageParam),
+    enabled: !!dmKey && !!normalizedQuery && enabled,
+    initialPageParam: undefined as string | undefined,
+    getNextPageParam: (lastPage) => lastPage.nextCursor ?? undefined,
+  });
+}
+
 export function useMessageDetails(messageId: string, enabled: boolean = true) {
   return useQuery({
     queryKey: [MESSAGES.MESSAGE_DETAILS, messageId],
@@ -48,11 +61,7 @@ export function useSendMessage(
   textAreaRef: React.RefObject<HTMLTextAreaElement | null>,
   setMessage: React.Dispatch<React.SetStateAction<string>>,
 ) {
-  return useMutation<
-    SendMessageResponse,
-    unknown,
-    { recipientPublicId: string; content: string; replyToId?: string }
-  >({
+  return useMutation<SendMessageResponse, unknown, { recipientPublicId: string; content: string; replyToId?: string }>({
     mutationFn: ({ recipientPublicId, content, replyToId }) =>
       messagesService.sendMessage(recipientPublicId, content, replyToId),
     onSuccess: () => {
@@ -135,6 +144,7 @@ export function useEditMessage() {
     mutationFn: ({ messageId, content }) => messagesService.editMessage(messageId, content),
     onSuccess: (_data, { dmKey }) => {
       void queryClient.invalidateQueries({ queryKey: [MESSAGES.ROOM_MESSAGES, dmKey] });
+      void queryClient.invalidateQueries({ queryKey: [MESSAGES.SEARCH_ROOM_MESSAGES, dmKey] });
       void queryClient.invalidateQueries({ queryKey: [MESSAGES.ROOM_DETAILS, dmKey] });
       void queryClient.invalidateQueries({ queryKey: [MESSAGES.MY_ROOMS] });
     },
@@ -148,6 +158,7 @@ export function useDeleteMessage() {
     mutationFn: ({ messageId }) => messagesService.deleteMessage(messageId),
     onSuccess: (_data, { dmKey }) => {
       void queryClient.invalidateQueries({ queryKey: [MESSAGES.ROOM_MESSAGES, dmKey] });
+      void queryClient.invalidateQueries({ queryKey: [MESSAGES.SEARCH_ROOM_MESSAGES, dmKey] });
       void queryClient.invalidateQueries({ queryKey: [MESSAGES.ROOM_DETAILS, dmKey] });
       void queryClient.invalidateQueries({ queryKey: [MESSAGES.MY_ROOMS] });
     },

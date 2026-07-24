@@ -9,6 +9,7 @@ export const USERS = {
 export const MESSAGES = {
   MY_ROOMS: 'my-rooms',
   ROOM_MESSAGES: 'room-messages',
+  SEARCH_ROOM_MESSAGES: 'search-room-messages',
   ROOM_DETAILS: 'room-details',
 
   MESSAGE_DETAILS: 'message-details',

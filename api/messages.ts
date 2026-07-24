@@ -5,6 +5,7 @@ import {
   MyRoomsResponse,
   RoomDetailsResponse,
   RoomMessagesResponse,
+  SearchRoomMessagesResponse,
   SeenAllMessagesResponse,
   SeenMessageResponse,
   SendMessageResponse,
@@ -26,6 +27,13 @@ export const messagesService = {
   getRoomMessages: async (dmKey: string, cursor?: string) => {
     const { data } = await api.get<RoomMessagesResponse>(`dm/room-messages/${dmKey}`, {
       params: { cursor, limit: 50 },
+    });
+    return data;
+  },
+
+  searchRoomMessages: async (dmKey: string, q: string, cursor?: string) => {
+    const { data } = await api.get<SearchRoomMessagesResponse>(`dm/search-messages/${dmKey}`, {
+      params: { q, cursor, limit: 50 },
     });
     return data;
   },

@@ -203,6 +203,12 @@
     "photo": "تصویر",
     "voice_message": "پیام صوتی",
     "video": "ویدیو",
-    "file": "فایل"
+    "file": "فایل",
+    "search_messages": "جستجوی پیام‌ها",
+    "close_message_search": "بستن جستجوی پیام‌ها",
+    "older_search_result": "نتیجه قدیمی‌تر",
+    "newer_search_result": "نتیجه جدیدتر",
+    "search_messages_failed": "جستجوی پیام‌ها انجام نشد",
+    "search_result_count": "{current} از {total}"
   }
 }

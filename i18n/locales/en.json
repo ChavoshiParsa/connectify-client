@@ -203,6 +203,12 @@
     "photo": "Photo",
     "voice_message": "Voice message",
     "video": "Video",
-    "file": "File"
+    "file": "File",
+    "search_messages": "Search messages",
+    "close_message_search": "Close message search",
+    "older_search_result": "Older search result",
+    "newer_search_result": "Newer search result",
+    "search_messages_failed": "Message search failed",
+    "search_result_count": "{current} of {total}"
   }
 }

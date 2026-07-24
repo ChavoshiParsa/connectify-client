@@ -42,14 +42,17 @@ export function useWebSocketEvents() {
 
     const handleNewMessage = (data: MessageNewData) => {
       invalidateRoom(data.dmKey);
+      void queryClient.invalidateQueries({ queryKey: [MESSAGES.SEARCH_ROOM_MESSAGES, data.dmKey] });
     };
 
     const handleMessageEdited = (data: MessageEditedData) => {
       invalidateRoom(data.dmKey);
+      void queryClient.invalidateQueries({ queryKey: [MESSAGES.SEARCH_ROOM_MESSAGES, data.dmKey] });
     };
 
     const handleMessageDeleted = (data: MessageDeletedData) => {
       invalidateRoom(data.dmKey);
+      void queryClient.invalidateQueries({ queryKey: [MESSAGES.SEARCH_ROOM_MESSAGES, data.dmKey] });
     };
 
     const handleMessagesSeen = (data: MessagesSeenData) => {

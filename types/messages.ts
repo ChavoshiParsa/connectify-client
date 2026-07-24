@@ -109,6 +109,18 @@ export type RoomMessagesResponse = {
   hasMore: boolean;
 };
 
+export type MessageSearchResult = {
+  id: string;
+  createdAt: Date;
+};
+
+export type SearchRoomMessagesResponse = {
+  results: MessageSearchResult[];
+  nextCursor: string | null;
+  hasMore: boolean;
+  total: number;
+};
+
 export type MessageDetailsResponse = RoomMessageItem & {
   room: {
     dmKey: string;

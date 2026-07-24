@@ -216,15 +216,7 @@ export default function ChatScreen({ dmKey }: Props) {
 
     toast.error(t('original_message_not_found'));
     setMessageToReveal(undefined);
-  }, [
-    fetchOlderMessages,
-    hasNextPage,
-    isFetchingNextPage,
-    messageToReveal,
-    messages.length,
-    revealMessage,
-    t,
-  ]);
+  }, [fetchOlderMessages, hasNextPage, isFetchingNextPage, messageToReveal, messages.length, revealMessage, t]);
 
   useEffect(() => () => cleanup(), [cleanup, dmKey]);
 
@@ -238,7 +230,7 @@ export default function ChatScreen({ dmKey }: Props) {
 
   return (
     <div className="relative flex size-full min-h-0 flex-col bg-zinc-100 dark:bg-zinc-950">
-      <ChatHeader dmKey={dmKey} />
+      <ChatHeader dmKey={dmKey} onNavigateToMessage={navigateToMessage} />
 
       <div
         ref={chatRef}
