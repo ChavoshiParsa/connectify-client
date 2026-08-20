@@ -4,6 +4,7 @@ import { io, type Socket } from 'socket.io-client';
 type AppSocket = Socket<ServerToClientEvents, ClientToServerEvents>;
 
 const SOCKET_URL = process.env.NEXT_PUBLIC_SOCKET_URL;
+const SOCKET_PATH = `/${(process.env.NEXT_PUBLIC_SOCKET_PATH || '/socket.io').replace(/^\/+|\/+$/g, '')}`;
 
 let socket: AppSocket | null = null;
 let activeToken: string | null = null;
@@ -26,6 +27,7 @@ export function connectSocket(accessToken: string): AppSocket {
   activeToken = accessToken;
 
   socket = io(SOCKET_URL, {
+    path: SOCKET_PATH,
     auth: {
       token: accessToken,
     },

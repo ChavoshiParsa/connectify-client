@@ -1,6 +1,7 @@
 import { MESSAGES } from '@/constants/query-keys';
 import { connectSocket, disconnectSocket } from '@/lib/socket';
 import { makeDmKey } from '@/lib/utils';
+import { playMessageSound } from '@/lib/message-sound';
 import { useAuthStore } from '@/stores/auth-store';
 import { useTypingStore } from '@/stores/typing-store';
 import {
@@ -43,6 +44,9 @@ export function useWebSocketEvents() {
     const handleNewMessage = (data: MessageNewData) => {
       invalidateRoom(data.dmKey);
       void queryClient.invalidateQueries({ queryKey: [MESSAGES.SEARCH_ROOM_MESSAGES, data.dmKey] });
+      if (data.senderPublicId !== myPublicId) {
+        playMessageSound(data.messageId);
+      }
     };
 
     const handleMessageEdited = (data: MessageEditedData) => {

@@ -174,10 +174,6 @@ export default function ChatScreen({ dmKey }: Props) {
 
     if (!previousLatestMessageId || previousLatestMessageId === latestMessageId) return;
 
-    if (latestMessage.sender.publicId !== myPublicId) {
-      setNewMessagesStartId((currentBoundary) => currentBoundary ?? latestMessageId);
-    }
-
     const frame = requestAnimationFrame(() => scrollToBottom('smooth'));
     return () => cancelAnimationFrame(frame);
   }, [dmKey, latestMessage, latestMessageId, myPublicId, scrollToBottom]);

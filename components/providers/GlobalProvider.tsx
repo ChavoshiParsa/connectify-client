@@ -7,6 +7,7 @@ import NextIntlProvider from './NextIntlProvider';
 import QueryProvider from './QueryProvider';
 import ThemeProvider from './ThemeProvider';
 import PreferencesProvider from './PreferencesProvider';
+import PwaProvider from './PwaProvider';
 
 export default async function GlobalProvider({ children }: { children: React.ReactNode }) {
   const locale = (await getLocale()) as LocaleType;
@@ -17,10 +18,12 @@ export default async function GlobalProvider({ children }: { children: React.Rea
       <PreferencesProvider>
         <NextIntlProvider>
           <QueryProvider>
-            <AuthRedirectProvider>
-              {children}
-              <Toaster position={isRtl ? 'bottom-left' : 'bottom-right'} richColors />
-            </AuthRedirectProvider>
+            <PwaProvider>
+              <AuthRedirectProvider>
+                {children}
+                <Toaster position={isRtl ? 'bottom-left' : 'bottom-right'} richColors />
+              </AuthRedirectProvider>
+            </PwaProvider>
           </QueryProvider>
         </NextIntlProvider>
       </PreferencesProvider>

@@ -2,6 +2,7 @@ import { authApi } from '@/api/api-client';
 import { disconnectSocket } from '@/lib/socket';
 import { useAuthStore } from '@/stores/auth-store';
 import { LoginResponse, RefreshResponse, RegisterResponse, ValidateResponse } from '@/types/auth';
+import { unsubscribeCurrentPushSubscription } from './push-notifications';
 
 export const authService = {
   validateEmailPass: async (email: string, password: string) => {
@@ -47,6 +48,11 @@ export const authService = {
     const { reset } = useAuthStore.getState();
 
     try {
+      try {
+        await unsubscribeCurrentPushSubscription();
+      } catch {
+        // Logging out must still succeed if the browser cannot remove its push subscription.
+      }
       const { data } = await authApi.post<{ message: string }>('/auth/logout');
       return data;
     } finally {

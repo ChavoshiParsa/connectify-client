@@ -1,3 +1,15 @@
+# Connectify client
+
+The client is an installable Progressive Web App. The service worker provides
+the offline fallback and receives message push notifications.
+
+Users can install the app and enable or disable notifications from
+`/preferences`. Foreground messages use the Connectify chime; background
+notifications use the browser or operating-system notification sound.
+
+Web Push requires HTTPS in production. Localhost is treated as a secure context
+for development.
+
 This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
 
 ## Getting Started

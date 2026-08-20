@@ -7,6 +7,13 @@ const eslintConfig = defineConfig([
   ...nextVitals,
   ...nextTs,
   ...pluginQuery.configs['flat/recommended'],
+  {
+    // Several stateful UI flows intentionally reset local state when their
+    // selected room/user changes. Keep the rest of the hooks rules enabled.
+    rules: {
+      'react-hooks/set-state-in-effect': 'off',
+    },
+  },
   // Override default ignores of eslint-config-next.
   globalIgnores([
     // Default ignores of eslint-config-next:

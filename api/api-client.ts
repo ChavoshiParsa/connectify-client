@@ -1,4 +1,6 @@
 import { disconnectSocket } from '@/lib/socket';
+import { unsubscribePushLocally } from '@/lib/push-subscription';
+import { PUBLIC_API_V1_URL } from '@/lib/public-api';
 import { useAuthStore } from '@/stores/auth-store';
 import axios, { AxiosError, InternalAxiosRequestConfig } from 'axios';
 import { authService } from './auth';
@@ -8,7 +10,7 @@ type Cfg = InternalAxiosRequestConfig & {
   skipAuthRefresh?: boolean;
 };
 
-export const BACKEND_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
+export const BACKEND_URL = PUBLIC_API_V1_URL;
 
 export const authApi = axios.create({
   baseURL: BACKEND_URL,
@@ -76,6 +78,7 @@ api.interceptors.response.use(
 
       processQueue(refreshError);
       disconnectSocket();
+      void unsubscribePushLocally();
       reset();
       return Promise.reject(refreshError);
     } finally {

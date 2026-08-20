@@ -3,6 +3,7 @@
 import MobileDrawer from '@/components/layout/drawer/MobileDrawer';
 import LocaleSelector from '@/components/common/LocaleSelector';
 import ModeToggle from '@/components/common/ModeToggle';
+import PwaSettings from '@/components/common/PwaSettings';
 import { useWindowWidth } from '@/hooks/app/use-window-width';
 import { cn } from '@/lib/utils';
 import { ColorTheme, FontSize, usePreferencesStore } from '@/stores/preferences-store';
@@ -18,33 +19,37 @@ export default function PreferencesPage() {
   const setFontSize = usePreferencesStore((state) => state.setFontSize);
 
   return (
-    <div className="xs:ms-14 xs:w-[calc(100%-3.5rem)] flex h-full w-full items-start gap-2 overflow-y-auto bg-zinc-100 p-2 md:m-0 md:w-full dark:bg-zinc-950">
-      {!isXs && <MobileDrawer />}
-      <main className="mx-auto flex w-full max-w-2xl flex-col gap-6 p-4 sm:p-8">
-        <div>
-          <h1 className="text-2xl font-bold">{t('title')}</h1>
-          <p className="text-muted-foreground mt-1 text-sm">{t('description')}</p>
+    <div className="xs:ms-14 xs:w-[calc(100%-3.5rem)] flex h-full w-full items-start overflow-x-hidden overflow-y-auto bg-zinc-100 p-2 md:m-0 md:w-full dark:bg-zinc-950">
+      <main className="mx-auto flex w-full max-w-2xl min-w-0 flex-col gap-6 p-2 sm:p-8">
+        <div className="flex min-w-0 items-start gap-3">
+          {!isXs && <MobileDrawer />}
+          <div className="min-w-0">
+            <h1 className="text-2xl font-bold">{t('title')}</h1>
+            <p className="text-muted-foreground mt-1 text-sm">{t('description')}</p>
+          </div>
         </div>
 
-        <section className="bg-card divide-y rounded-2xl border shadow-sm">
-          <div className="flex items-center justify-between gap-4 p-5">
-            <div className="flex items-center gap-3">
-              <span className="bg-muted grid size-10 place-items-center rounded-xl">
+        <PwaSettings />
+
+        <section className="bg-card divide-y overflow-hidden rounded-2xl border shadow-sm">
+          <div className="flex flex-col items-stretch gap-4 p-5 sm:flex-row sm:items-center sm:justify-between">
+            <div className="flex min-w-0 items-center gap-3">
+              <span className="bg-muted grid size-10 shrink-0 place-items-center rounded-xl">
                 <Languages className="size-5" />
               </span>
-              <div>
+              <div className="min-w-0">
                 <h2 className="font-medium">{t('language')}</h2>
                 <p className="text-muted-foreground text-sm">{t('language_help')}</p>
               </div>
             </div>
-            <LocaleSelector />
+            <LocaleSelector className="w-full sm:w-32" />
           </div>
-          <div className="flex items-center justify-between gap-4 p-5">
-            <div className="flex items-center gap-3">
-              <span className="bg-muted grid size-10 place-items-center rounded-xl">
+          <div className="flex flex-col items-stretch gap-4 p-5 sm:flex-row sm:items-center sm:justify-between">
+            <div className="flex min-w-0 items-center gap-3">
+              <span className="bg-muted grid size-10 shrink-0 place-items-center rounded-xl">
                 <Palette className="size-5" />
               </span>
-              <div>
+              <div className="min-w-0">
                 <h2 className="font-medium">{t('theme')}</h2>
                 <p className="text-muted-foreground text-sm">{t('theme_help')}</p>
               </div>
@@ -52,16 +57,16 @@ export default function PreferencesPage() {
             <ModeToggle />
           </div>
           <div className="grid gap-4 p-5">
-            <div className="flex items-center gap-3">
-              <span className="bg-muted grid size-10 place-items-center rounded-xl">
+            <div className="flex min-w-0 items-center gap-3">
+              <span className="bg-muted grid size-10 shrink-0 place-items-center rounded-xl">
                 <Palette className="size-5" />
               </span>
-              <div>
+              <div className="min-w-0">
                 <h2 className="font-medium">{t('color_theme')}</h2>
                 <p className="text-muted-foreground text-sm">{t('color_theme_help')}</p>
               </div>
             </div>
-            <div className="grid grid-cols-2 gap-2 sm:grid-cols-5">
+            <div className="grid grid-cols-1 gap-2 min-[22rem]:grid-cols-2 sm:grid-cols-5">
               {COLOR_THEMES.map((theme) => (
                 <button
                   key={theme.value}
@@ -80,16 +85,16 @@ export default function PreferencesPage() {
             </div>
           </div>
           <div className="grid gap-4 p-5">
-            <div className="flex items-center gap-3">
-              <span className="bg-muted grid size-10 place-items-center rounded-xl">
+            <div className="flex min-w-0 items-center gap-3">
+              <span className="bg-muted grid size-10 shrink-0 place-items-center rounded-xl">
                 <Type className="size-5" />
               </span>
-              <div>
+              <div className="min-w-0">
                 <h2 className="font-medium">{t('font_size')}</h2>
                 <p className="text-muted-foreground text-sm">{t('font_size_help')}</p>
               </div>
             </div>
-            <div className="grid grid-cols-3 gap-2">
+            <div className="grid grid-cols-1 gap-2 min-[22rem]:grid-cols-3">
               {FONT_SIZES.map((size) => (
                 <button
                   key={size.value}

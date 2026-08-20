@@ -2,6 +2,7 @@
 
 import { AuthPageMode } from '@/app/auth/page';
 import { useApp } from '@/hooks/app/use-app';
+import { withBasePath } from '@/lib/app-path';
 import { cn } from '@/lib/utils';
 import { motion } from 'motion/react';
 import Image from 'next/image';
@@ -30,7 +31,7 @@ export default function AuthLayout({ initialPage }: { initialPage: AuthPageMode 
           <Image
             className="object-cover object-center"
             fill
-            src={isSignInPage ? '/images/city.jpg' : '/images/mountain.jpg'}
+            src={withBasePath(isSignInPage ? '/images/city.jpg' : '/images/mountain.jpg')}
             alt={isSignInPage ? 'City view' : 'Mountain view'}
             sizes="(max-width: 768px) 100vw, 58.33vw"
             priority
